@@ -3,6 +3,7 @@
 #include <iostream>
 #include <utility>
 
+#include "../controller.hpp"
 #include "tp1.hpp"
 
 const std::unordered_map<char, char> TP1::TP1::TRIGRAPH_MAP
@@ -21,6 +22,7 @@ bool TP1::TP1::execute(const char *filename,
 {
     TP1 tp1;
     tp1.mFilename = (filename != nullptr) ? std::string(filename) : std::string();
+    Controller::CURRENT_FILENAME = tp1.mFilename;
 
     tp1.openFile();
 
