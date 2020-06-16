@@ -4,11 +4,13 @@
 class Controller
 {
 public:
-    Controller();
+    Controller() noexcept;
 
     bool execute(const char *filename);
 
 private:
+    bool procTP1(const char *filename) const;
+
     bool mIsValid;
 };
 
