@@ -1,3 +1,5 @@
+#include <string>
+
 #include "tp1/tp1.hpp"
 #include "controller.hpp"
 
@@ -8,14 +10,10 @@ Controller::Controller() noexcept:
 
 bool Controller::execute(const char *filename)
 {
-    if(!(mIsValid = procTP1(filename)))
+    TP1::TP1 tp1;
+    std::string src;
+    if(!(mIsValid = tp1.execute(filename, src)))
         return false;
 
     return mIsValid;
-}
-
-bool Controller::procTP1(const char *filename) const
-{
-    TP1::TP1 tp1;
-    return tp1.execute(filename);
 }
