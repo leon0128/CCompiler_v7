@@ -4,11 +4,11 @@
 class Controller
 {
 public:
-    Controller() noexcept;
-
-    bool execute(const char *filename);
+    static bool execute(const char *filename);
 
 private:
+    Controller() noexcept;
+
     bool mIsValid;
 };
 

@@ -1,10 +1,9 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <utility>
 
 #include "tp1.hpp"
-
-std::string mStrInit;
 
 const std::unordered_map<char, char> TP1::TP1::TRIGRAPH_MAP
     = {{'=', '#'},
@@ -17,25 +16,26 @@ const std::unordered_map<char, char> TP1::TP1::TRIGRAPH_MAP
        {'>', '}'},
        {'-', '~'}};
 
-TP1::TP1::TP1() noexcept:
-    mFilename(),
-    mSrc(::mStrInit),
-    mIsValid(true)
-{
-}
-
 bool TP1::TP1::execute(const char *filename,
                        std::string &src)
 {
-    mSrc = src;
-    mFilename = (filename != nullptr) ? std::string(filename) : std::string();
+    TP1 tp1;
+    tp1.mFilename = (filename != nullptr) ? std::string(filename) : std::string();
 
-    openFile();
-    if(mIsValid)
-        replaceTrigraph();
+    tp1.openFile();
 
-    mSrc = ::mStrInit;
-    return mIsValid;
+    if(tp1.mIsValid)
+        tp1.replaceTrigraph();
+
+    src = std::move(tp1.mSrc);
+    return tp1.mIsValid;
+}
+
+TP1::TP1::TP1() noexcept:
+    mFilename(),
+    mSrc(),
+    mIsValid(true)
+{
 }
 
 void TP1::TP1::openFile()

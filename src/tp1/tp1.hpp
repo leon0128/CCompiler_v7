@@ -9,21 +9,20 @@ namespace TP1
 
 class TP1
 {
+public:
+    static bool execute(const char *filename,
+                        std::string &str);
+
 private:
     static const std::unordered_map<char, char> TRIGRAPH_MAP;
 
-public:
     TP1() noexcept;
 
-    bool execute(const char *filename,
-                 std::string &src);
-
-private:
     void openFile();
     void replaceTrigraph();
 
     std::string mFilename;
-    std::string &mSrc;
+    std::string mSrc;
     bool mIsValid;
 };
 
