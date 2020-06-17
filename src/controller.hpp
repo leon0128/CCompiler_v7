@@ -5,12 +5,14 @@
 
 namespace TP1{class TP1;}
 namespace TP2{class TP2;}
+namespace TP3{class TP3;}
 
 class Controller
 {
 public:
     friend class TP1::TP1;
     friend class TP2::TP2;
+    friend class TP3::TP3;
 
     static bool execute(const char *filename);
 
@@ -18,8 +20,7 @@ private:
     static std::string CURRENT_FILENAME;
 
     Controller() noexcept;
-
-
+    
     bool mIsValid;
 };
 
