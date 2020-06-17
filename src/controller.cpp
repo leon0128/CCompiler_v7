@@ -23,7 +23,6 @@ bool Controller::execute(const char *filename)
     if(isValid)
         isValid = TP3::TP3::execute(src, ptvec);
 
-    PPFile *ppFile;
     if(isValid)
         isValid = TP4::TP4::execute(ptvec);
 
