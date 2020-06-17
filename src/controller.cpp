@@ -5,6 +5,7 @@
 #include "tp1/tp1.hpp"
 #include "tp2/tp2.hpp"
 #include "tp3/tp3.hpp"
+#include "tp4/tp4.hpp"
 #include "simbol.hpp"
 #include "controller.hpp"
 
@@ -21,6 +22,10 @@ bool Controller::execute(const char *filename)
     std::vector<PPToken*> ptvec;
     if(isValid)
         isValid = TP3::TP3::execute(src, ptvec);
+
+    PPFile *ppFile;
+    if(isValid)
+        isValid = TP4::TP4::execute(ptvec);
 
     BaseSimbol::destroy();
     return true;
