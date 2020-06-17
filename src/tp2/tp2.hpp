@@ -12,11 +12,11 @@ public:
     static bool execute(std::string &src);
 
 private:
-    TP2() noexcept;
+    TP2(std::string&) noexcept;
 
     void concatenate();
 
-    std::string mSrc;
+    std::string &mSrc;
     bool mIsValid;
 };
 

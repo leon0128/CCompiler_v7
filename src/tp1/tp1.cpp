@@ -3,7 +3,7 @@
 #include <iostream>
 #include <utility>
 
-#include "../controller.hpp"
+#include "../global.hpp"
 #include "tp1.hpp"
 
 const std::unordered_map<char, char> TP1::TP1::TRIGRAPH_MAP
@@ -20,29 +20,26 @@ const std::unordered_map<char, char> TP1::TP1::TRIGRAPH_MAP
 bool TP1::TP1::execute(const char *filename,
                        std::string &src)
 {
-    TP1 tp1;
-    tp1.mFilename = (filename != nullptr) ? std::string(filename) : std::string();
-    Controller::CURRENT_FILENAME = tp1.mFilename;
+    TP1 tp1(src);
+    Global::CURRENT_FILENAME = (filename != nullptr) ? std::string(filename) : std::string();
 
     tp1.openFile();
 
     if(tp1.mIsValid)
         tp1.replaceTrigraph();
 
-    src = std::move(tp1.mSrc);
     return tp1.mIsValid;
 }
 
-TP1::TP1::TP1() noexcept:
-    mFilename(),
-    mSrc(),
+TP1::TP1::TP1(std::string &src) noexcept:
+    mSrc(src),
     mIsValid(true)
 {
 }
 
 void TP1::TP1::openFile()
 {
-    std::ifstream fstr(mFilename);
+    std::ifstream fstr(Global::CURRENT_FILENAME);
 
     if(fstr.is_open())
     {
@@ -56,7 +53,7 @@ void TP1::TP1::openFile()
         mIsValid = false;
         std::cout << "TP1 error:\n"
                      "    what: failed to open file.\n"
-                     "    filename: " << mFilename
+                     "    filename: " << Global::CURRENT_FILENAME
                   << std::endl;       
     }
 }

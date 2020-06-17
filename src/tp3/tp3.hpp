@@ -4,7 +4,15 @@
 #include <string>
 #include <vector>
 
+class CharacterConstant;
+class HCharSequence;
+class HeaderName;
+class Identifier;
+class PPNumber;
 class PPToken;
+class Punctuator;
+class QCharSequence;
+class StringLiteral;
 
 namespace TP3
 {
@@ -16,7 +24,28 @@ public:
                         std::vector<PPToken*> &ptvec);
 
 private:
+    TP3(std::string&,
+        std::vector<PPToken*>&) noexcept;
 
+    void decompose();
+
+    // decompose helper
+    // extract each simbol
+    CharacterConstant *etrCharacterConstant();
+    Identifier *etrIdentifier();
+    PPNumber *etrPPNumber();
+    PPToken *etrPPToken();
+    Punctuator *etrPunctuator();
+    StringLiteral *etrStringLiteral();
+
+    std::pair<bool, char> procEscapeSequence();
+    bool procComment();
+
+    std::string &mSrc;
+    std::size_t mIdx;
+    std::vector<PPToken*> &mPtvec;
+
+    bool mIsValid;
 };
 
 }

@@ -1,23 +1,21 @@
 #include <iostream>
 
-#include "../controller.hpp"
+#include "../global.hpp"
 #include "tp2.hpp"
 
 bool TP2::TP2::execute(std::string &src)
 {
-    TP2 tp2;
-    tp2.mSrc = std::move(src);
+    TP2 tp2(src);
 
     tp2.concatenate();
     if(!tp2.mIsValid)
         return false;
     
-    src = std::move(tp2.mSrc);
     return true;
 }
 
-TP2::TP2::TP2() noexcept:
-    mSrc(),
+TP2::TP2::TP2(std::string &src) noexcept:
+    mSrc(src),
     mIsValid(true)
 {
 }
@@ -36,7 +34,7 @@ void TP2::TP2::concatenate()
         mIsValid = false;
         std::cout << "TP2 error:\n"
                      "    what: source that is not empty shall end in a new-line character.\n"
-                     "    filename: " << Controller::CURRENT_FILENAME
+                     "    filename: " << Global::CURRENT_FILENAME
                   << std::endl;           
     }
 }

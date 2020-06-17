@@ -16,13 +16,12 @@ public:
 private:
     static const std::unordered_map<char, char> TRIGRAPH_MAP;
 
-    TP1() noexcept;
+    explicit TP1(std::string&) noexcept;
 
     void openFile();
     void replaceTrigraph();
 
-    std::string mFilename;
-    std::string mSrc;
+    std::string &mSrc;
     bool mIsValid;
 };
 

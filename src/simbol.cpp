@@ -74,12 +74,18 @@ BaseSimbol::~BaseSimbol() noexcept
 
 std::string CharacterConstant::string()
 {
-    return str;
+    std::string retval = "'";
+    retval += str;
+    retval.push_back('\'');
+    return retval;
 }
 
 std::string HCharSequence::string()
 {
-    return str;
+    std::string retval = "<";
+    retval += str;
+    retval.push_back('>');
+    return retval;
 }
 
 std::string HeaderName::string()
@@ -125,18 +131,25 @@ std::string PPToken::string()
     {
         case(Tag::HEADER_NAME):
             retval += uni.headerName->string();
+            break;
         case(Tag::IDENTIFIER):
             retval += uni.identifier->string();
+            break;
         case(Tag::PP_NUMBER):
             retval += uni.ppNumber->string();
+            break;
         case(Tag::CHARACTER_CONSTANT):
             retval += uni.characterConstant->string();
+            break;
         case(Tag::STRING_LITERAL):
             retval += uni.stringLiteral->string();
+            break;
         case(Tag::PUNCTUATOR):
             retval += uni.punctuator->string();
+            break;
         case(Tag::OTHER):
             retval += std::string(1, uni.other);
+            break;
 
         default:
             unexceptTag("PPToken");
@@ -166,10 +179,16 @@ std::string Punctuator::string()
 
 std::string QCharSequence::string()
 {
-    return str;
+    std::string retval = "\"";
+    retval += str;
+    retval.push_back('"');
+    return retval;
 }
 
 std::string StringLiteral::string()
 {
-    return str;
+    std::string retval = "\"";
+    retval += str;
+    retval.push_back('"');
+    return retval;
 }

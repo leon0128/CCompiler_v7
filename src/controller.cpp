@@ -7,8 +7,6 @@
 #include "tp3/tp3.hpp"
 #include "controller.hpp"
 
-std::string Controller::CURRENT_FILENAME;
-
 bool Controller::execute(const char *filename)
 {
     std::string src;
@@ -21,8 +19,6 @@ bool Controller::execute(const char *filename)
     std::vector<PPToken*> ptvec;
     if(!TP3::TP3::execute(src, ptvec))
         return false;
-
-    std::cout << src << std::endl;
 
     return true;
 }
