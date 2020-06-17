@@ -18,10 +18,26 @@ class Punctuator;
 class QCharSequence;
 class StringLiteral;
 
+class IdentifierList;
+
+class ControlLine;
+class ElifGroup;
+class ElifGroups;
+class ElseGroup;
+class Group;
+class GroupPart;
+class IfGroup;
+class IfSection;
+class NonDirective;
+class PPFile;
+class PPTokens;
+class ReplacementList;
+class TextLine;
+
 class BaseSimbol
 {
 public:
-    static bool unexceptTag(const char *className) noexcept;
+    static bool unexpectTag(const char *className) noexcept;
     static void destroy();
 
     BaseSimbol() noexcept {}
@@ -41,7 +57,7 @@ class CharacterConstant : public BaseSimbol
 public:
     std::string str;
     
-    CharacterConstant():
+    CharacterConstant() noexcept:
         BaseSimbol(),
         str(){}
     
@@ -53,7 +69,7 @@ class HCharSequence : public BaseSimbol
 public:
     std::string str;
 
-    HCharSequence():
+    HCharSequence() noexcept:
         BaseSimbol(),
         str(){}
 
@@ -79,7 +95,7 @@ public:
             h(nullptr){}
     } uni;
 
-    HeaderName():
+    HeaderName() noexcept:
         BaseSimbol(),
         tag(Tag::NONE),
         uni(){}
@@ -92,7 +108,7 @@ class Identifier : public BaseSimbol
 public:
     std::string str;
 
-    Identifier():
+    Identifier() noexcept:
         BaseSimbol(),
         str(){}
 
@@ -104,7 +120,7 @@ class PPNumber : public BaseSimbol
 public:
     std::string str;
 
-    PPNumber():
+    PPNumber() noexcept:
         BaseSimbol(),
         str(){}
     
@@ -142,7 +158,7 @@ public:
 
     bool isGlued;
 
-    PPToken():
+    PPToken() noexcept:
         BaseSimbol(),
         tag(Tag::NONE),
         uni(),
@@ -207,7 +223,7 @@ public:
         HSHS // ##
     } tag;
 
-    Punctuator():
+    Punctuator() noexcept:
         BaseSimbol(),
         tag(Tag::NONE){}
     
@@ -221,7 +237,7 @@ class QCharSequence : public BaseSimbol
 public:
     std::string str;
 
-    QCharSequence():
+    QCharSequence() noexcept:
         BaseSimbol(),
         str(){}
 
@@ -233,10 +249,295 @@ class StringLiteral : public BaseSimbol
 public:
     std::string str;
 
-    StringLiteral():
+    StringLiteral() noexcept:
         BaseSimbol(),
         str(){}
 
+    std::string string() override;
+};
+
+class IdentifierList : public BaseSimbol
+{
+public:
+    std::vector<Identifier*> ivec;
+
+    IdentifierList() noexcept:
+        BaseSimbol(),
+        ivec(){}
+    
+    std::string string() override;
+};
+
+class ControlLine : public BaseSimbol
+{
+public:
+    enum class Tag
+    {
+        NONE,
+        INCLUDE,
+        DEFINE,
+        DEFINE_IL, // identifier-list
+        DEFINE_V, // variable arguments
+        DEFINE_ILV, // identifier-list and variable arguments
+        UNDEF,
+        LINE,
+        ERROR,
+        PRAGMA,
+        NEW_LINE
+    } tag;
+
+    union Uni
+    {
+        struct SInclude
+        {
+            PPTokens *ppTokens;
+        } sInclude;
+        struct SDefine
+        {
+            Identifier *identifier;
+            ReplacementList *replacementList;
+        } sDefine;
+        struct SDefineIL
+        {
+            Identifier *identifier;
+            IdentifierList *identifierList;
+            ReplacementList *replacementList;
+        } sDefineIL;
+        struct SDefineV
+        {
+            Identifier *identifier;
+            ReplacementList *replacementList;
+        } sDefineV;
+        struct SDefineILV
+        {
+            Identifier *identifier;
+            IdentifierList *identifierList;
+            ReplacementList *replacementList;
+        } sDefineILV;
+        struct SUndef
+        {
+            Identifier *identifier;
+        } sUndef;
+        struct SLine
+        {
+            PPTokens *ppTokens;
+        } sLine;
+        struct SError
+        {
+            PPTokens *ppTokens;
+        } sError;
+        struct SPragma
+        {
+            PPTokens *ppTokens;
+        } sPragma;
+        
+        Uni() noexcept:
+            sInclude{nullptr}{}
+    } uni;
+
+    ControlLine() noexcept:
+        BaseSimbol(),
+        tag(Tag::NONE),
+        uni(){}
+    
+    std::string string() override;
+};
+
+class ElifGroup : public BaseSimbol
+{
+public:
+    PPTokens *ppTokens;
+    Group *group;
+
+    ElifGroup() noexcept:
+        BaseSimbol(),
+        ppTokens(nullptr),
+        group(nullptr){}
+    
+    std::string string() override;
+};
+
+class ElifGroups : public BaseSimbol
+{
+public:
+    std::vector<ElifGroup*> egvec;
+
+    ElifGroups() noexcept:
+        BaseSimbol(),
+        egvec(){}
+
+    std::string string() override;
+};
+
+class ElseGroup : public BaseSimbol
+{
+public:
+    Group *group;
+
+    ElseGroup() noexcept:
+        BaseSimbol(),
+        group(nullptr){}
+    
+    std::string string() override;
+};
+
+class Group : public BaseSimbol
+{
+public:
+    std::vector<GroupPart*> gpvec;
+
+    Group() noexcept:
+        BaseSimbol(),
+        gpvec(){}
+
+    std::string string() override;
+};
+
+class GroupPart : public BaseSimbol
+{
+public:
+    enum class Tag
+    {
+        NONE,
+        IF_SECTION,
+        CONTROL_LINE,
+        TEXT_LINE,
+        NON_DIRECTIVE
+    } tag;
+
+    union Uni
+    {
+        IfSection *ifSection;
+        ControlLine *controlLine;
+        TextLine *textLine;
+        NonDirective *nonDirective;
+
+        Uni() noexcept:
+            ifSection(nullptr){}
+    } uni;
+
+    GroupPart() noexcept:
+        BaseSimbol(),
+        tag(Tag::NONE),
+        uni(){}
+    
+    std::string string() override;
+};
+
+class IfGroup : public BaseSimbol
+{
+public:
+    enum class Tag
+    {
+        NONE,
+        IF,
+        IFDEF,
+        IFNDEF
+    } tag;
+
+    union Uni
+    {
+        struct SIf
+        {
+            PPTokens *ppTokens;
+            Group *group;
+        } sIf;
+        struct SIfdef
+        {
+            Identifier *identifier;
+            Group *group;
+        } sIfdef;
+        struct SIfndef
+        {
+            Identifier *identifier;
+            Group *group;
+        } sIfndef;
+
+        Uni() noexcept:
+            sIf{nullptr, nullptr}{}
+    } uni;
+
+    IfGroup() noexcept:
+        BaseSimbol(),
+        tag(Tag::NONE),
+        uni(){}
+
+    std::string string() override;
+};
+
+class IfSection : public BaseSimbol
+{
+public:
+    IfGroup *ifGroup;
+    ElifGroups *elifGroups;
+    ElseGroup *elseGroup;
+
+    IfSection() noexcept:
+        BaseSimbol(),
+        ifGroup(nullptr),
+        elifGroups(nullptr),
+        elseGroup(nullptr){}
+    
+    std::string string() override;
+};
+
+class NonDirective : public BaseSimbol
+{
+public:
+    PPTokens *ppTokens;
+
+    NonDirective() noexcept:
+        BaseSimbol(),
+        ppTokens(nullptr){}
+    
+    std::string string() override;
+};
+
+class PPFile : public BaseSimbol
+{
+public:
+    Group *group;
+
+    PPFile() noexcept:
+        BaseSimbol(),
+        group(nullptr){}
+
+    std::string string() override;
+};
+
+class PPTokens : public BaseSimbol
+{
+public:
+    std::vector<PPToken*> ptvec;
+
+    PPTokens() noexcept:
+        BaseSimbol(),
+        ptvec(){}
+    
+    std::string string() override;
+};
+
+class ReplacementList : public BaseSimbol
+{
+public:
+    PPTokens *ppTokens;
+
+    ReplacementList() noexcept:
+        BaseSimbol(),
+        ppTokens(nullptr){}
+    
+    std::string string() override;
+};
+
+class TextLine : public BaseSimbol
+{
+public:
+    PPTokens *ppTokens;
+
+    TextLine() noexcept:
+        BaseSimbol(),
+        ppTokens(nullptr){}
+    
     std::string string() override;
 };
 
