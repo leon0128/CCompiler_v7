@@ -5,25 +5,23 @@
 #include "tp1/tp1.hpp"
 #include "tp2/tp2.hpp"
 #include "tp3/tp3.hpp"
+#include "simbol.hpp"
 #include "controller.hpp"
 
 bool Controller::execute(const char *filename)
 {
-    std::string src;
-    if(!TP1::TP1::execute(filename, src))
-        return false;
+    bool isValid = true;
 
-    if(!TP2::TP2::execute(src))
-        return false;
+    std::string src;
+    isValid = TP1::TP1::execute(filename, src);
+
+    if(isValid)
+        isValid = TP2::TP2::execute(src);
 
     std::vector<PPToken*> ptvec;
-    if(!TP3::TP3::execute(src, ptvec))
-        return false;
+    if(isValid)
+        isValid = TP3::TP3::execute(src, ptvec);
 
+    BaseSimbol::destroy();
     return true;
-}
-
-Controller::Controller() noexcept:
-    mIsValid(true)
-{
 }

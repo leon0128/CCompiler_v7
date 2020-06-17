@@ -13,9 +13,6 @@ bool TP3::TP3::execute(std::string &src,
 
     tp3.decompose();
 
-    for(auto&& pt : ptvec)
-        std::cout << pt->string();
-
     return tp3.mIsValid;
 }
 

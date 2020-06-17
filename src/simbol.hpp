@@ -1,6 +1,7 @@
 #ifndef SIMBOL_HPP
 #define SIMBOL_HPP
 
+#include <new>
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -21,11 +22,18 @@ class BaseSimbol
 {
 public:
     static bool unexceptTag(const char *className) noexcept;
+    static void destroy();
 
+    BaseSimbol() noexcept {}
+
+    void *operator new(std::size_t);
     void *operator new[](std::size_t) = delete;
     virtual ~BaseSimbol() noexcept = 0;
 
     virtual std::string string() = 0;
+
+private:
+    static std::vector<BaseSimbol*> ALLOCATED_SIMBOLS;
 };
 
 class CharacterConstant : public BaseSimbol

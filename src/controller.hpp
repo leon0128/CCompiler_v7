@@ -7,11 +7,6 @@ class Controller
 {
 public:
     static bool execute(const char *filename);
-
-private:
-    Controller() noexcept;
-    
-    bool mIsValid;
 };
 
 #endif

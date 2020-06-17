@@ -3,6 +3,8 @@
 
 #include "simbol.hpp"
 
+std::vector<BaseSimbol*> BaseSimbol::ALLOCATED_SIMBOLS;
+
 const std::unordered_map<std::string, Punctuator::Tag> Punctuator::PUNCTUATOR_MAP
     = {{"[", Tag::SL_PAREN},
        {"]", Tag::SR_PAREN},
@@ -66,6 +68,21 @@ bool BaseSimbol::unexceptTag(const char *className) noexcept
               << std::endl;
 
     return false;
+}
+
+void BaseSimbol::destroy()
+{
+    for(auto&& bs : ALLOCATED_SIMBOLS)
+        delete bs;
+    
+    ALLOCATED_SIMBOLS.clear();
+}
+
+void *BaseSimbol::operator new(std::size_t size)
+{
+    void *alloc = ::operator new(size);
+    ALLOCATED_SIMBOLS.push_back(static_cast<BaseSimbol*>(alloc));
+    return alloc;
 }
 
 BaseSimbol::~BaseSimbol() noexcept
