@@ -78,6 +78,15 @@ void BaseSimbol::destroy()
     ALLOCATED_SIMBOLS.clear();
 }
 
+PPToken *BaseSimbol::strToPt(std::string &&str)
+{
+    PPToken *retval = new PPToken();
+    retval->tag = PPToken::Tag::STRING_LITERAL;
+    retval->uni.stringLiteral = new StringLiteral();
+    retval->uni.stringLiteral->str = str;
+    return retval;
+}
+
 void *BaseSimbol::operator new(std::size_t size)
 {
     void *alloc = ::operator new(size);

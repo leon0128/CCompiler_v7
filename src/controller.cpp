@@ -29,3 +29,9 @@ bool Controller::execute(const char *filename)
     BaseSimbol::destroy();
     return true;
 }
+
+bool Controller::retokenize(std::string &src,
+                            std::vector<PPToken*> &dst)
+{
+    return TP3::TP3::execute(src, dst);
+}

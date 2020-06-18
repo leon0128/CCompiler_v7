@@ -286,6 +286,7 @@ Group *TP4::Tokenizer::tokGroup()
             if(gpvec[i]->uni.textLine->ppTokens != nullptr &&
                gpvec[i + 1]->uni.textLine->ppTokens != nullptr)
             {
+                gpvec[i + 1]->uni.textLine->ppTokens->ptvec.front()->isGlued = false;
                 gpvec[i]->uni.textLine->ppTokens->ptvec
                     .insert(gpvec[i]->uni.textLine->ppTokens->ptvec.end(),
                             gpvec[i + 1]->uni.textLine->ppTokens->ptvec.begin(),

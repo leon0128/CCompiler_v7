@@ -9,6 +9,8 @@ bool TP4::TP4::execute(std::vector<PPToken*> &ptvec)
     PPFile *ppFile;
     isValid = Tokenizer::execute(ptvec, ppFile);
 
+
+    ptvec.clear();
     if(isValid)
         isValid = Processor::execute(ppFile, ptvec);
     

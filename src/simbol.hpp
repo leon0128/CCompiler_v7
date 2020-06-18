@@ -39,6 +39,10 @@ class BaseSimbol
 public:
     static bool unexpectTag(const char *className) noexcept;
     static void destroy();
+    
+    static PPToken *strToPt(std::string&&);
+    template<class Tag>
+    static PPToken *puncToPt(Tag tag);
 
     BaseSimbol() noexcept {}
 
@@ -540,5 +544,15 @@ public:
     
     std::string string() override;
 };
+
+template<class Tag>
+PPToken *BaseSimbol::puncToPt(Tag tag)
+{
+    PPToken *retval = new PPToken();
+    retval->tag = PPToken::Tag::PUNCTUATOR;
+    retval->uni.punctuator = new Punctuator();
+    retval->uni.punctuator->tag = tag;
+    return retval;
+}
 
 #endif
