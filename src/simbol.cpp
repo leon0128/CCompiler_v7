@@ -87,6 +87,15 @@ PPToken *BaseSimbol::strToPt(std::string &&str)
     return retval;
 }
 
+PPToken *BaseSimbol::numToPt(std::string &&str)
+{
+    PPToken *retval = new PPToken();
+    retval->tag = PPToken::Tag::PP_NUMBER;
+    retval->uni.ppNumber = new PPNumber();
+    retval->uni.ppNumber->str = str;
+    return retval;
+}
+
 void *BaseSimbol::operator new(std::size_t size)
 {
     void *alloc = ::operator new(size);

@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "../integer.hpp"
 #include "../global.hpp"
 #include "../controller.hpp"
 #include "processor.hpp"
@@ -67,6 +68,69 @@ void TP4::Processor::proc(PPFile *ppFile)
     
     if(ppFile->group != nullptr)
         proc(ppFile->group);
+}
+
+bool TP4::Processor::isInclude(PPTokens *ppTokens)
+{
+    std::vector<PPToken*> ptvec = ppTokens->ptvec;
+    
+    // defined operator
+    for(std::size_t i = 0; i + 1 < ptvec.size(); i++)
+    {
+        if((ptvec[i]->tag == PPToken::Tag::IDENTIFIER) ? (ptvec[i]->uni.identifier->str == "defined") : false)
+        {
+            // defined identifier
+            if(ptvec[i + 1]->tag == PPToken::Tag::IDENTIFIER)
+            {
+                bool isDefined = MACRO_MAP.find(ptvec[i + 1]->uni.identifier->str) != MACRO_MAP.end();
+                ptvec.erase(ptvec.begin() + i,
+                            ptvec.begin() + i + 2);
+                ptvec.insert(ptvec.begin() + i,
+                             BaseSimbol::numToPt(isDefined ? "1" : "0"));
+            }
+            // defined ( identifier )
+            else if(i + 3 < ptvec.size())
+            {
+                if(((ptvec[i + 1]->tag == PPToken::Tag::PUNCTUATOR) ? (ptvec[i + 1]->uni.punctuator->tag == Punctuator::Tag::L_PAREN) : false) &&
+                   (ptvec[i + 2]->tag == PPToken::Tag::IDENTIFIER) &&
+                   ((ptvec[i + 3]->tag == PPToken::Tag::PUNCTUATOR) ? (ptvec[i + 3]->uni.punctuator->tag == Punctuator::Tag::R_PAREN) : false))
+                {
+                    bool isDefined = MACRO_MAP.find(ptvec[i + 2]->uni.identifier->str) != MACRO_MAP.end();
+                    ptvec.erase(ptvec.begin() + i,
+                                ptvec.begin() + i + 4);
+                    ptvec.insert(ptvec.begin() + i,
+                                 BaseSimbol::numToPt(isDefined ? "1" : "0"));
+                }
+            }
+        }
+    }
+
+    // expand macro
+    std::vector<PPToken*> exPtvec;
+    expand(ptvec, exPtvec);
+
+    // replace remaind identifier
+    for(auto&& pt : exPtvec)
+    {
+        if(pt->tag == PPToken::Tag::IDENTIFIER)
+            pt = BaseSimbol::numToPt("0");
+    }
+
+    if(!mIsValid)
+        return false;
+
+    Integer res;
+    mIsValid = Controller::evaluate(exPtvec, res);
+
+    if(res.tag == Integer::Tag::SIGNED)
+        return res.uni.i != 0;
+    else
+        return res.uni.u != 0;
+}
+
+bool TP4::Processor::isInclude(Identifier *identifier)
+{
+    return MACRO_MAP.find(identifier->str) != MACRO_MAP.end();
 }
 
 void TP4::Processor::expand(std::vector<PPToken*> &src,
