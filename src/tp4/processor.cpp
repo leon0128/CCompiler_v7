@@ -30,6 +30,51 @@ void TP4::Processor::process()
     proc(mPPFile);
 }
 
+void TP4::Processor::proc(ControlLine *controlLine)
+{
+    if(!mIsValid)
+        return;
+
+    switch(controlLine->tag)
+    {
+        case(ControlLine::Tag::INCLUDE):
+            ctrlInclude(controlLine);
+            break;
+        case(ControlLine::Tag::DEFINE):
+            ctrlDefine(controlLine);
+            break;
+        case(ControlLine::Tag::DEFINE_IL):
+            ctrlDefineIL(controlLine);
+            break;
+        case(ControlLine::Tag::DEFINE_V):
+            ctrlDefineV(controlLine);
+            break;
+        case(ControlLine::Tag::DEFINE_ILV):
+            ctrlDefineILV(controlLine);
+            break;
+        case(ControlLine::Tag::UNDEF):
+            ctrlUndef(controlLine);
+            break;
+        case(ControlLine::Tag::LINE):
+            ctrlLine(controlLine);
+            break;
+        case(ControlLine::Tag::ERROR):
+            ctrlError(controlLine);
+            break;
+        case(ControlLine::Tag::PRAGMA):
+            ctrlPragma(controlLine);
+            break;
+        case(ControlLine::Tag::NEW_LINE):
+            ctrl(controlLine);
+            break;
+        
+        default:
+            mIsValid = false;
+            BaseSimbol::unexpectTag("ControlLine");
+            break;
+    }
+}
+
 void TP4::Processor::proc(Group *group)
 {
     for(std::size_t i = 0; i < group->gpvec.size() && mIsValid; i++)
@@ -61,6 +106,85 @@ void TP4::Processor::proc(GroupPart *groupPart)
     }
 }
 
+void TP4::Processor::proc(IfSection *ifSection)
+{
+    if(!mIsValid)
+        return;
+
+    bool isConsumed = false;
+
+    // if-group
+    switch(ifSection->ifGroup->tag)
+    {
+        case(IfGroup::Tag::IF):
+            if(isEvaluated(ifSection->ifGroup->uni.sIf.ppTokens))
+            {
+                isConsumed = true;
+                if(ifSection->ifGroup->uni.sIf.group != nullptr)
+                    proc(ifSection->ifGroup->uni.sIf.group);
+            }
+            break;
+        case(IfGroup::Tag::IFDEF):
+            if(isEvaluated(ifSection->ifGroup->uni.sIfdef.identifier))
+            {
+                isConsumed = true;
+                if(ifSection->ifGroup->uni.sIfdef.group != nullptr)
+                    proc(ifSection->ifGroup->uni.sIfdef.group);
+            }
+            break;
+        case(IfGroup::Tag::IFNDEF):
+            if(isEvaluated(ifSection->ifGroup->uni.sIfndef.identifier))
+            {
+                isConsumed = true;
+                if(ifSection->ifGroup->uni.sIfndef.group != nullptr)
+                    proc(ifSection->ifGroup->uni.sIfndef.group);
+            }
+            break;
+        
+        default:
+            mIsValid = false;
+            BaseSimbol::unexpectTag("IfGroup");
+    }
+
+    // elif-groups
+    if(!isConsumed &&
+       (ifSection->elifGroups != nullptr))
+    {
+        for(auto&& eg : ifSection->elifGroups->egvec)
+        {
+            if(isEvaluated(eg->ppTokens))
+            {
+                isConsumed = true;
+                if(eg->group != nullptr)
+                    proc(eg->group);
+                break;
+            }
+        }
+    }
+
+    // else-group
+    if(!isConsumed &&
+       (ifSection->elseGroup != nullptr))
+    {
+        isConsumed = true;
+        if(ifSection->elseGroup->group != nullptr)
+            proc(ifSection->elseGroup->group);
+    }
+}
+
+void TP4::Processor::proc(NonDirective *nonDirective)
+{
+    if(!mIsValid)
+        return;
+
+    mIsValid = false;
+    std::cerr << "TP4 Processor implementation error:\n"
+                 "    what: non-directive is no implementation.\n"
+                 "    filename: " << Global::CURRENT_FILENAME << "\n"
+                 "    non-directive: " << nonDirective->string()
+              << std::endl; 
+}
+
 void TP4::Processor::proc(PPFile *ppFile)
 {
     if(!mIsValid)
@@ -70,7 +194,21 @@ void TP4::Processor::proc(PPFile *ppFile)
         proc(ppFile->group);
 }
 
-bool TP4::Processor::isInclude(PPTokens *ppTokens)
+void TP4::Processor::proc(TextLine *textLine)
+{
+    if(!mIsValid)
+        return;
+
+    if(textLine->ppTokens != nullptr)
+        expand(textLine->ppTokens->ptvec, mPtvec);
+}
+
+void TP4::Processor::ctrlInclude(ControlLine* controlLine)
+{
+    
+}
+
+bool TP4::Processor::isEvaluated(PPTokens *ppTokens)
 {
     std::vector<PPToken*> ptvec = ppTokens->ptvec;
     
@@ -128,7 +266,7 @@ bool TP4::Processor::isInclude(PPTokens *ppTokens)
         return res.uni.u != 0;
 }
 
-bool TP4::Processor::isInclude(Identifier *identifier)
+bool TP4::Processor::isEvaluated(Identifier *identifier)
 {
     return MACRO_MAP.find(identifier->str) != MACRO_MAP.end();
 }

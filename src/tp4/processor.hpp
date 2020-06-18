@@ -33,9 +33,21 @@ private:
     void proc(PPFile*);
     void proc(TextLine*);
 
+    // control-line helper
+    void ctrlInclude(ControlLine*);
+    void ctrlDefine(ControlLine*);
+    void ctrlDefineIL(ControlLine*);
+    void ctrlDefineV(ControlLine*);
+    void ctrlDefineILV(ControlLine*);
+    void ctrlUndef(ControlLine*);
+    void ctrlLine(ControlLine*);
+    void ctrlError(ControlLine*);
+    void ctrlPragma(ControlLine*);
+    void ctrl(ControlLine*);
+
     // if-section helper
-    bool isInclude(PPTokens*);
-    bool isInclude(Identifier*);
+    bool isEvaluated(PPTokens*);
+    bool isEvaluated(Identifier*);
 
     // expand macro
     void expand(std::vector<PPToken*> &src,
