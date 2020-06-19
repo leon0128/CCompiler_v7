@@ -40,8 +40,8 @@ public:
     static bool unexpectTag(const char *className) noexcept;
     static void destroy();
     
-    static PPToken *strToPt(std::string&&);
-    static PPToken *numToPt(std::string&&);
+    static PPToken *strToPt(std::string);
+    static PPToken *numToPt(std::string);
     template<class Tag>
     static PPToken *puncToPt(Tag tag);
 

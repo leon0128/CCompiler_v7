@@ -5,6 +5,8 @@
 #include <vector>
 #include "integer.hpp"
 
+class PPToken;
+
 class Controller
 {
 public:
@@ -18,6 +20,9 @@ public:
     // for tp4 constant-expression
     static bool evaluate(const std::vector<PPToken*>&,
                          Integer&);
+
+private:
+    static bool readIncludeSystemPaths();
 };
 
 #endif

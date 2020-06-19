@@ -205,7 +205,49 @@ void TP4::Processor::proc(TextLine *textLine)
 
 void TP4::Processor::ctrlInclude(ControlLine* controlLine)
 {
-    
+    // expand macro
+    std::vector<PPToken*> exPtvec;
+    expand(controlLine->uni.sInclude.ppTokens->ptvec, exPtvec);
+    if(!mIsValid)
+        return;
+
+    // get string
+    std::string str;
+    for(auto &&pt : exPtvec)
+    {
+        bool tmp = pt->isGlued;
+        pt->isGlued = true;
+        str += pt->string();
+        pt->isGlued = tmp;
+    }
+
+    // check valid form
+    bool isValidForm = false;
+    bool isSystemHeader = false;
+    if(str.size() >= 2)
+    {
+        if(str.front() == '"' &&
+           str.back() == '"')
+            isValidForm = true;
+        else if(str.front() == '<' &&
+                str.back() == '>')
+        {
+            isValidForm = true;
+            isSystemHeader = true;
+        }
+    }
+    if(!isValidForm)
+    {
+        mIsValid = false;
+        std::cout << "TP4 Processor error:\n"
+                     "    what: include directive is invalid.\n"
+                     "    filename: " << Global::CURRENT_FILENAME << "\n"
+                     "    directive: #include " << str
+                  << std::endl;
+        return;
+    }
+
+    // 
 }
 
 bool TP4::Processor::isEvaluated(PPTokens *ppTokens)
@@ -461,13 +503,17 @@ bool TP4::Processor::expandFunction(std::vector<PPToken*> &src,
             std::string src;
             if(bef != nullptr)
             {
+                bool tmp = bef->isGlued;
                 bef->isGlued = true;
                 src += bef->string();
+                bef->isGlued = tmp;
             }
             if(aft != nullptr)
             {
+                bool tmp = aft->isGlued;
                 aft->isGlued = true;
                 src += aft->string();
+                aft->isGlued = tmp;
             }
         
             std::vector<PPToken*> res;

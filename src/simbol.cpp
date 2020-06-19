@@ -78,7 +78,7 @@ void BaseSimbol::destroy()
     ALLOCATED_SIMBOLS.clear();
 }
 
-PPToken *BaseSimbol::strToPt(std::string &&str)
+PPToken *BaseSimbol::strToPt(std::string str)
 {
     PPToken *retval = new PPToken();
     retval->tag = PPToken::Tag::STRING_LITERAL;
@@ -87,7 +87,7 @@ PPToken *BaseSimbol::strToPt(std::string &&str)
     return retval;
 }
 
-PPToken *BaseSimbol::numToPt(std::string &&str)
+PPToken *BaseSimbol::numToPt(std::string str)
 {
     PPToken *retval = new PPToken();
     retval->tag = PPToken::Tag::PP_NUMBER;
