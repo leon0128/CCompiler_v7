@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <unordered_map>
+
 #include "../simbol.hpp"
 #include "macro.hpp"
 
@@ -44,6 +45,9 @@ private:
     void ctrlError(ControlLine*);
     void ctrlPragma(ControlLine*);
     void ctrl(ControlLine*);
+
+    // helper for define
+    void emplaceMacro(Macro&&);
 
     // if-section helper
     bool isEvaluated(PPTokens*);

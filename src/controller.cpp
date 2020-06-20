@@ -46,6 +46,27 @@ bool Controller::retokenize(std::string &src,
     return TP3::TP3::execute(src, dst);
 }
 
+bool Controller::include(const std::string &filename,
+                         std::vector<PPToken*> &dst)
+{
+    bool isValid = true;
+
+    std::string src;
+    isValid = TP1::TP1::execute(filename.c_str(), src);
+
+    if(isValid)
+        isValid = TP2::TP2::execute(src);
+    
+    std::vector<PPToken*> ptvec;
+    if(isValid)
+        isValid = TP3::TP3::execute(src, ptvec);
+    
+    if(isValid)
+        isValid = TP4::TP4::execute(ptvec);
+    
+    return isValid;
+}
+
 bool Controller::readIncludeSystemPaths()
 {
     std::ifstream stream(Global::JSON_FILENAME);

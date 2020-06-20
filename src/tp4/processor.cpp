@@ -1,8 +1,11 @@
 #include <iostream>
+#include <fstream>
+#include <utility>
 
-#include "../integer.hpp"
 #include "../global.hpp"
 #include "../controller.hpp"
+#include "integer.hpp"
+#include "calculator.hpp"
 #include "processor.hpp"
 
 std::unordered_map<std::string, TP4::Macro> TP4::Processor::MACRO_MAP;
@@ -247,7 +250,190 @@ void TP4::Processor::ctrlInclude(ControlLine* controlLine)
         return;
     }
 
-    // 
+    // check file
+    std::string includeFilename;
+    std::string substr = str.substr(1, str.size() - 2);
+    std::ifstream stream;
+    if(!isSystemHeader)
+    {
+        auto pos = Global::CURRENT_FILENAME.rfind('/');
+        if(pos != std::string::npos)
+            includeFilename = Global::CURRENT_FILENAME.substr(0, pos + 1);
+        includeFilename += substr;
+        stream.open(includeFilename);
+        if(stream.is_open())
+            stream.close();
+        else
+            includeFilename.clear();
+    }
+    if(includeFilename.empty())
+    {
+        for(auto &&s : Global::INCLUDE_SYSTEM_PATHS)
+        {
+            includeFilename = s + "/" + substr;
+            stream.open(s);
+            if(stream.is_open())
+            {
+                stream.close();
+                break;
+            }
+            else
+                includeFilename.clear();
+        }
+    }
+
+    if(includeFilename.empty())
+    {
+        mIsValid = false;
+        std::cout << "TP4 Processor error:\n"
+                     "    what: failed to open include file.\n"
+                     "    filename: " << Global::CURRENT_FILENAME << "\n"
+                     "    include filename: " << str
+                  << std::endl;
+        return;
+    }
+
+    // include
+    std::string tmp = Global::CURRENT_FILENAME;
+    Global::CURRENT_FILENAME = includeFilename;
+    std::vector<PPToken*> dst;
+    if(Controller::include(includeFilename, dst))
+    {
+        mPtvec.insert(mPtvec.end(),
+                      dst.begin(),
+                      dst.end());
+    }
+    Global::CURRENT_FILENAME = tmp;
+}
+
+void TP4::Processor::ctrlDefine(ControlLine *controlLine)
+{
+    Macro macro;
+    macro.ident = controlLine->uni.sDefine.identifier->str;
+    macro.repVec = controlLine->uni.sDefine.replacementList->ppTokens->ptvec;
+
+    emplaceMacro(std::move(macro));
+}
+
+void TP4::Processor::ctrlDefineIL(ControlLine *controlLine)
+{
+    Macro macro;
+    macro.ident = controlLine->uni.sDefine.identifier->str;
+    macro.repVec = controlLine->uni.sDefine.replacementList->ppTokens->ptvec;
+    macro.isFunction = true;
+    for(std::size_t i = 0; i < controlLine->uni.sDefineIL.identifierList->ivec.size(); i++)
+    {
+        auto pair = macro.paramMap.emplace(controlLine->uni.sDefineIL.identifierList->ivec[i]->str, i);
+        if(pair.second)
+        {
+            mIsValid = false;
+            std::cout << "TP4 Processor error:\n"
+                         "    what: macro parameter is duplication.\n"
+                         "    filename: " << Global::CURRENT_FILENAME << "\n"
+                         "    macro name: " << macro.ident
+                      << std::endl;
+            return;
+        }
+    }
+
+    emplaceMacro(std::move(macro));
+}
+
+void TP4::Processor::ctrlDefineV(ControlLine *controlLine)
+{
+    Macro macro;
+    macro.ident = controlLine->uni.sDefineV.identifier->str;
+    macro.isFunction = true;
+    macro.isVariable = true;
+    macro.repVec = controlLine->uni.sDefineV.replacementList->ppTokens->ptvec;
+
+    emplaceMacro(std::move(macro));
+}
+
+void TP4::Processor::ctrlDefineILV(ControlLine *controlLine)
+{
+    Macro macro;
+    macro.ident = controlLine->uni.sDefineILV.identifier->str;
+    macro.isFunction = true;
+    macro.isVariable = true;
+    macro.repVec = controlLine->uni.sDefineILV.replacementList->ppTokens->ptvec;
+    for(std::size_t i = 0; i < controlLine->uni.sDefineIL.identifierList->ivec.size(); i++)
+    {
+        auto pair = macro.paramMap.emplace(controlLine->uni.sDefineIL.identifierList->ivec[i]->str, i);
+        if(pair.second)
+        {
+            mIsValid = false;
+            std::cout << "TP4 Processor error:\n"
+                         "    what: macro parameter is duplication.\n"
+                         "    filename: " << Global::CURRENT_FILENAME << "\n"
+                         "    macro name: " << macro.ident
+                      << std::endl;
+            return;
+        }
+    }
+
+    emplaceMacro(std::move(macro));
+}
+
+void TP4::Processor::ctrlUndef(ControlLine *controlLine)
+{
+    auto iter = MACRO_MAP.find(controlLine->uni.sUndef.identifier->str);
+    if(iter != MACRO_MAP.end())
+        MACRO_MAP.erase(iter);
+}
+
+void TP4::Processor::ctrlLine(ControlLine *controlLine)
+{
+    mIsValid = false;
+    std::cerr << "TP4 Processor implementation error:\n"
+                 "    what: line directive is not supported.\n"
+                 "    filename: " << Global::CURRENT_FILENAME << "\n"
+                 "    contents: " << controlLine->string()
+              << std::endl;
+}
+
+void TP4::Processor::ctrlError(ControlLine *controlLine)
+{
+    mIsValid = false;
+    std::cout << "TP4 Processor error:\n"
+                 "    what: error directive.\n"
+                 "    filename: " << Global::CURRENT_FILENAME << "\n"
+                 "    contents: " << controlLine->string()
+              << std::endl;
+}
+
+void TP4::Processor::ctrlPragma(ControlLine *controlLine)
+{
+    mIsValid = false;
+    std::cerr << "TP4 Processor implementation error:\n"
+                 "    what: pragma directive is not supported.\n"
+                 "    filename: " << Global::CURRENT_FILENAME << "\n"
+                 "    contents: " << controlLine->string()
+              << std::endl;
+}
+
+void TP4::Processor::ctrl(ControlLine*)
+{
+}
+
+void TP4::Processor::emplaceMacro(Macro &&macro)
+{
+    std::string tmp = macro.ident;
+    auto iter = MACRO_MAP.find(macro.ident);
+    if(iter == MACRO_MAP.end())
+        MACRO_MAP.emplace(std::move(tmp), std::move(macro));
+    else
+    {
+        if(macro != iter->second)
+        {
+            mIsValid = false;
+            std::cout << "TP4 Processor error:\n"
+                         "    what: macro is redefined.\n"
+                         "    filename: " << Global::CURRENT_FILENAME << "\n"
+                         "    macro name: " << macro.ident
+                      << std::endl;
+        }
+    }
 }
 
 bool TP4::Processor::isEvaluated(PPTokens *ppTokens)
@@ -300,7 +486,7 @@ bool TP4::Processor::isEvaluated(PPTokens *ppTokens)
         return false;
 
     Integer res;
-    mIsValid = Controller::evaluate(exPtvec, res);
+    mIsValid = Calculator::execute(exPtvec, res);
 
     if(res.tag == Integer::Tag::SIGNED)
         return res.uni.i != 0;

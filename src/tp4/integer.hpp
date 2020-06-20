@@ -1,7 +1,10 @@
-#ifndef INTEGER_HPP
-#define INTEGER_HPP
+#ifndef TP4_INTEGER_HPP
+#define TP4_INTEGER_HPP
 
 #include <cstdint>
+
+namespace TP4
+{
 
 class Integer
 {
@@ -22,5 +25,7 @@ public:
         tag(Tag::SIGNED),
         uni{0}{}
 };
+
+}
 
 #endif

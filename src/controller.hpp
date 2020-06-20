@@ -3,7 +3,6 @@
 
 #include <string>
 #include <vector>
-#include "integer.hpp"
 
 class PPToken;
 
@@ -16,10 +15,10 @@ public:
     // for tp4 ## opeartor
     static bool retokenize(std::string &src,
                            std::vector<class PPToken*> &dst);
-    
-    // for tp4 constant-expression
-    static bool evaluate(const std::vector<PPToken*>&,
-                         Integer&);
+
+    // for tp4 include directive
+    static bool include(const std::string &filename,
+                        std::vector<PPToken*>&);
 
 private:
     static bool readIncludeSystemPaths();
