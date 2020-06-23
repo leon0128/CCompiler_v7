@@ -1,7 +1,7 @@
 #include "../simbol.hpp"
 #include "macro.hpp"
 
-bool operator ==(const TP4::Macro &lhs, const TP4::Macro &rhs)
+bool TP4::operator ==(const TP4::Macro &lhs, const TP4::Macro &rhs)
 {
     if(lhs.isFunction != rhs.isFunction)
         return false;
@@ -39,7 +39,7 @@ bool operator ==(const TP4::Macro &lhs, const TP4::Macro &rhs)
     }
 }
 
-bool operator !=(const TP4::Macro &lhs, const TP4::Macro &rhs)
+bool TP4::operator !=(const TP4::Macro &lhs, const TP4::Macro &rhs)
 {
     return !(lhs == rhs);
 }

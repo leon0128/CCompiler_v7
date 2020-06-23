@@ -28,9 +28,9 @@ public:
     bool isVariable;
 };
 
-}
+bool operator ==(const Macro&, const Macro&);
+bool operator !=(const Macro&, const Macro&);
 
-bool operator ==(const TP4::Macro&, const TP4::Macro&);
-bool operator !=(const TP4::Macro&, const TP4::Macro&);
+}
 
 #endif
