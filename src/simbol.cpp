@@ -446,10 +446,7 @@ std::string PPTokens::string()
 {
     std::string retval;
     for(auto&& pt : ptvec)
-    {
         retval += pt->string();
-        retval.push_back('\n');
-    }
 
     return retval;
 }

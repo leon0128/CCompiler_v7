@@ -139,6 +139,16 @@ ControlLine *TP4::Tokenizer::tokControlLine()
                     }
                 }
             }
+            else if((retval.uni.sDefine.replacementList = tokReplacementList()) != nullptr)
+            {
+                if(isMatch(mIdx, '\n'))
+                {
+                    mIdx++;
+                    retval.uni.sDefine.identifier = identifier;
+                    retval.tag = ControlLine::Tag::DEFINE;
+                    isValid = true;
+                }
+            }
         }
         else if(isMatch(mIdx, "undef") &&
                 isMatch(mIdx + 1) &&
@@ -521,12 +531,17 @@ TextLine *TP4::Tokenizer::tokTextLine()
     auto befidx = mIdx;
     bool isValid = false;
     
-    retval.ppTokens = tokPPTokens();
-    if(isMatch(mIdx, '\n'))
+    if(!isMatch(mIdx, Punctuator::Tag::HASH))
     {
-        mIdx++;
-        isValid = true;
+        retval.ppTokens = tokPPTokens();
+        if(isMatch(mIdx, '\n'))
+        {
+            mIdx++;
+            isValid = true;
+        }
     }
+    else
+        isValid = false;
 
     if(isValid)
         return new TextLine(retval);

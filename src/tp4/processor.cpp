@@ -136,7 +136,7 @@ void TP4::Processor::proc(IfSection *ifSection)
             }
             break;
         case(IfGroup::Tag::IFNDEF):
-            if(isEvaluated(ifSection->ifGroup->uni.sIfndef.identifier))
+            if(!isEvaluated(ifSection->ifGroup->uni.sIfndef.identifier))
             {
                 isConsumed = true;
                 if(ifSection->ifGroup->uni.sIfndef.group != nullptr)
@@ -253,14 +253,13 @@ void TP4::Processor::ctrlInclude(ControlLine* controlLine)
     // check file
     std::string includeFilename;
     std::string substr = str.substr(1, str.size() - 2);
-    std::ifstream stream;
     if(!isSystemHeader)
     {
         auto pos = Global::CURRENT_FILENAME.rfind('/');
         if(pos != std::string::npos)
             includeFilename = Global::CURRENT_FILENAME.substr(0, pos + 1);
         includeFilename += substr;
-        stream.open(includeFilename);
+        std::ifstream stream(includeFilename);
         if(stream.is_open())
             stream.close();
         else
@@ -268,10 +267,10 @@ void TP4::Processor::ctrlInclude(ControlLine* controlLine)
     }
     if(includeFilename.empty())
     {
-        for(auto &&s : Global::INCLUDE_SYSTEM_PATHS)
+        for(const auto &s : Global::INCLUDE_SYSTEM_PATHS)
         {
             includeFilename = s + "/" + substr;
-            stream.open(s);
+            std::ifstream stream(includeFilename);
             if(stream.is_open())
             {
                 stream.close();
@@ -310,7 +309,8 @@ void TP4::Processor::ctrlDefine(ControlLine *controlLine)
 {
     Macro macro;
     macro.ident = controlLine->uni.sDefine.identifier->str;
-    macro.repVec = controlLine->uni.sDefine.replacementList->ppTokens->ptvec;
+    if(controlLine->uni.sDefine.replacementList->ppTokens != nullptr)
+        macro.repVec = controlLine->uni.sDefine.replacementList->ppTokens->ptvec;
 
     emplaceMacro(std::move(macro));
 }
@@ -318,13 +318,14 @@ void TP4::Processor::ctrlDefine(ControlLine *controlLine)
 void TP4::Processor::ctrlDefineIL(ControlLine *controlLine)
 {
     Macro macro;
-    macro.ident = controlLine->uni.sDefine.identifier->str;
-    macro.repVec = controlLine->uni.sDefine.replacementList->ppTokens->ptvec;
+    macro.ident = controlLine->uni.sDefineIL.identifier->str;
+    if(controlLine->uni.sDefineIL.replacementList->ppTokens != nullptr)
+        macro.repVec = controlLine->uni.sDefineIL.replacementList->ppTokens->ptvec;
     macro.isFunction = true;
     for(std::size_t i = 0; i < controlLine->uni.sDefineIL.identifierList->ivec.size(); i++)
     {
         auto pair = macro.paramMap.emplace(controlLine->uni.sDefineIL.identifierList->ivec[i]->str, i);
-        if(pair.second)
+        if(!pair.second)
         {
             mIsValid = false;
             std::cout << "TP4 Processor error:\n"
@@ -345,7 +346,8 @@ void TP4::Processor::ctrlDefineV(ControlLine *controlLine)
     macro.ident = controlLine->uni.sDefineV.identifier->str;
     macro.isFunction = true;
     macro.isVariable = true;
-    macro.repVec = controlLine->uni.sDefineV.replacementList->ppTokens->ptvec;
+    if(controlLine->uni.sDefineV.replacementList->ppTokens != nullptr)
+        macro.repVec = controlLine->uni.sDefineV.replacementList->ppTokens->ptvec;
 
     emplaceMacro(std::move(macro));
 }
@@ -356,11 +358,12 @@ void TP4::Processor::ctrlDefineILV(ControlLine *controlLine)
     macro.ident = controlLine->uni.sDefineILV.identifier->str;
     macro.isFunction = true;
     macro.isVariable = true;
-    macro.repVec = controlLine->uni.sDefineILV.replacementList->ppTokens->ptvec;
-    for(std::size_t i = 0; i < controlLine->uni.sDefineIL.identifierList->ivec.size(); i++)
+    if(controlLine->uni.sDefineILV.replacementList->ppTokens != nullptr)
+        macro.repVec = controlLine->uni.sDefineILV.replacementList->ppTokens->ptvec;
+    for(std::size_t i = 0; i < controlLine->uni.sDefineILV.identifierList->ivec.size(); i++)
     {
-        auto pair = macro.paramMap.emplace(controlLine->uni.sDefineIL.identifierList->ivec[i]->str, i);
-        if(pair.second)
+        auto pair = macro.paramMap.emplace(controlLine->uni.sDefineILV.identifierList->ivec[i]->str, i);
+        if(!pair.second)
         {
             mIsValid = false;
             std::cout << "TP4 Processor error:\n"

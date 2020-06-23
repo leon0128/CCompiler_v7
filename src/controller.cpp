@@ -36,6 +36,9 @@ bool Controller::execute(const char *filename)
     if(isValid)
         isValid = TP4::TP4::execute(ptvec);
 
+    for(const auto &pt : ptvec)
+        std::cout << pt->string() << std::endl;
+
     BaseSimbol::destroy();
     return true;
 }
@@ -64,6 +67,7 @@ bool Controller::include(const std::string &filename,
     if(isValid)
         isValid = TP4::TP4::execute(ptvec);
     
+    dst = std::move(ptvec);
     return isValid;
 }
 
@@ -84,7 +88,9 @@ bool Controller::readIncludeSystemPaths()
 
     BOOST_FOREACH(const decltype(ptree)::value_type &element, ptree.get_child("include_system_paths"))
     {
-        Global::INCLUDE_SYSTEM_PATHS.push_back(element.first);
+        boost::optional<std::string> ostr = element.second.get_optional<std::string>("");
+        if(ostr)
+            Global::INCLUDE_SYSTEM_PATHS.push_back(std::move(*ostr));
     }
 
     return true;
