@@ -267,7 +267,7 @@ void TP4::Processor::ctrlInclude(ControlLine* controlLine)
     }
     if(includeFilename.empty())
     {
-        for(const auto &s : Global::INCLUDE_SYSTEM_PATHS)
+        for(const auto &s : Global::Config::INCLUDE_SYSTEM_PATHS)
         {
             includeFilename = s + "/" + substr;
             std::ifstream stream(includeFilename);

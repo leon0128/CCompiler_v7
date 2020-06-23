@@ -1,8 +1,8 @@
 #ifndef CONTROLLER_HPP
 #define CONTROLLER_HPP
 
-#include <string>
 #include <vector>
+#include <string>
 
 class PPToken;
 
@@ -14,14 +14,14 @@ public:
 
     // for tp4 ## opeartor
     static bool retokenize(std::string &src,
-                           std::vector<class PPToken*> &dst);
+                           std::vector<PPToken*> &dst);
 
     // for tp4 include directive
     static bool include(const std::string &filename,
                         std::vector<PPToken*>&);
 
 private:
-    static bool readIncludeSystemPaths();
+    static bool readConfig();
 };
 
 #endif

@@ -4,15 +4,20 @@
 #include <string>
 #include <vector>
 
-class Global
+namespace Global
 {
-public:
-    Global() = delete;
+    extern std::string CURRENT_FILENAME;
 
-    static std::string CURRENT_FILENAME;
+    namespace Config
+    {
+        extern const std::string FILENAME;
+        
+        extern const std::string PREDEFINED_MACRO_FILENAME_KEY;
+        extern const std::string SYSTEM_INCLUDE_PATHS_KEY;
 
-    static std::string JSON_FILENAME;
-    static std::vector<std::string> INCLUDE_SYSTEM_PATHS;
-};
+        extern std::string PREDEFINED_MACRO_FILENAME;
+        extern std::vector<std::string> INCLUDE_SYSTEM_PATHS;
+    }
+}
 
 #endif

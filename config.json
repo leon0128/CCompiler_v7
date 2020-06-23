@@ -1,5 +1,6 @@
 {
-    "include_system_paths":
+	"predefined_macro_filename": "predefined_macro.h",
+    "system_include_paths":
     [
         "/usr/lib/gcc/x86_64-linux-gnu/9/include",
         "/usr/local/include",
