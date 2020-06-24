@@ -13,6 +13,7 @@
 #include "tp3/tp3.hpp"
 #include "tp4/tp4.hpp"
 #include "tp6/tp6.hpp"
+#include "tp7/tp7.hpp"
 #include "global.hpp"
 #include "simbol.hpp"
 #include "controller.hpp"
@@ -20,7 +21,7 @@
 bool Controller::execute(const char *filename)
 {
     bool isValid = true;
-    std::string src;
+    std::string src, dst;
     std::vector<PPToken*> ptvec;
 
     isValid = readConfig();
@@ -43,6 +44,11 @@ bool Controller::execute(const char *filename)
 
     if(isValid)
         isValid = TP6::TP6::execute(ptvec);
+
+    if(isValid)
+        isValid = TP7::TP7::execute(ptvec, dst);
+
+    output(dst);
 
     Simbol::destroy();
     return true;
@@ -103,4 +109,23 @@ bool Controller::readConfig()
     }
 
     return true;
+}
+
+bool Controller::output(std::string &dst)
+{
+    std::string filename = Global::CURRENT_FILENAME.substr(0, Global::CURRENT_FILENAME.size() - 2) + ".o";
+    std::ofstream stream(filename);
+    if(stream.is_open())
+    {
+        stream << dst << std::endl;
+        return true;
+    }
+    else
+    {
+        std::cerr << "Controller error:\n"
+                     "    what: failed to open output file.\n"
+                     "    filename: " << filename
+                  << std::endl;
+        return false;
+    }
 }

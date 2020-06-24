@@ -22,6 +22,7 @@ public:
 
 private:
     static bool readConfig();
+    static bool output(std::string&);
 };
 
 #endif
