@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <utility>
 
 class BaseSimbol;
 
@@ -34,19 +35,25 @@ class PPTokens;
 class ReplacementList;
 class TextLine;
 
+namespace Simbol
+{
+    extern void destroy() noexcept;
+    extern bool unexpectTag(const char *className) noexcept;
+
+    template<class String>
+    extern PPToken *strToPt(String&&);
+    template<class String>
+    extern PPToken *numToPt(String&&);
+    template<class Tag>
+    extern PPToken *puncToPt(Tag tag);
+}
+
 class BaseSimbol
 {
 public:
-    static bool unexpectTag(const char *className) noexcept;
-    static void destroy();
-    
-    static PPToken *strToPt(std::string);
-    static PPToken *numToPt(std::string);
-    template<class Tag>
-    static PPToken *puncToPt(Tag tag);
+    friend void Simbol::destroy() noexcept;
 
     BaseSimbol() noexcept {}
-
     void *operator new(std::size_t);
     void *operator new[](std::size_t) = delete;
     virtual ~BaseSimbol() noexcept = 0;
@@ -546,8 +553,28 @@ public:
     std::string string() override;
 };
 
+template<class String>
+PPToken *Simbol::strToPt(String &&str)
+{
+    PPToken *retval = new PPToken();
+    retval->tag = PPToken::Tag::STRING_LITERAL;
+    retval->uni.stringLiteral = new StringLiteral();
+    retval->uni.stringLiteral->str = std::forward<String>(str);
+    return retval;
+}
+
+template<class String>
+PPToken *Simbol::numToPt(String &&str)
+{
+    PPToken *retval = new PPToken();
+    retval->tag = PPToken::Tag::PP_NUMBER;
+    retval->uni.ppNumber = new PPNumber();
+    retval->uni.ppNumber->str = std::forward<String>(str);
+    return retval;
+}
+
 template<class Tag>
-PPToken *BaseSimbol::puncToPt(Tag tag)
+PPToken *Simbol::puncToPt(Tag tag)
 {
     PPToken *retval = new PPToken();
     retval->tag = PPToken::Tag::PUNCTUATOR;

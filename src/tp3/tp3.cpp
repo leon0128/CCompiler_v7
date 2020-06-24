@@ -6,6 +6,19 @@
 #include "../simbol.hpp"
 #include "tp3.hpp"
 
+const std::unordered_map<char, char> TP3::TP3::SIMPLE_ESCAPE_SEQUENCE_MAP
+    = {{'\'', '\''},
+       {'\"', '\"'},
+       {'\?', '\?'},
+       {'\\', '\\'},
+       {'a', '\a'},
+       {'b', '\b'},
+       {'f', '\f'},
+       {'n', '\n'},
+       {'r', '\r'},
+       {'t', '\t'},
+       {'v', '\v'}};
+
 bool TP3::TP3::execute(std::string &src,
                        std::vector<PPToken*>& ptvec)
 {
@@ -264,18 +277,9 @@ std::pair<bool, char> TP3::TP3::procEscapeSequence()
     char c = (mIdx < mSrc.size()) ? mSrc[mIdx] : 0;
 
     // simple-escape-sequence
-    if(c == '\'' ||
-       c == '\"' ||
-       c == '\?' ||
-       c == '\\' ||
-       c == '\a' ||
-       c == '\b' ||
-       c == '\f' ||
-       c == '\n' ||
-       c == '\r' ||
-       c == '\t' ||
-       c == '\v')
-        return std::make_pair(true, c);
+    auto iter = SIMPLE_ESCAPE_SEQUENCE_MAP.find(c);
+    if(iter != SIMPLE_ESCAPE_SEQUENCE_MAP.end())
+        return std::make_pair(true, iter->second);
     // octal-escape-sequence
     else if(c >= '0' && c <= '7')
     {

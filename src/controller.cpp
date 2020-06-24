@@ -12,6 +12,7 @@
 #include "tp2/tp2.hpp"
 #include "tp3/tp3.hpp"
 #include "tp4/tp4.hpp"
+#include "tp6/tp6.hpp"
 #include "global.hpp"
 #include "simbol.hpp"
 #include "controller.hpp"
@@ -40,7 +41,10 @@ bool Controller::execute(const char *filename)
     if(isValid)
         isValid = TP4::TP4::execute(ptvec);
 
-    BaseSimbol::destroy();
+    if(isValid)
+        isValid = TP6::TP6::execute(ptvec);
+
+    Simbol::destroy();
     return true;
 }
 

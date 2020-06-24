@@ -73,7 +73,7 @@ void TP4::Processor::proc(ControlLine *controlLine)
         
         default:
             mIsValid = false;
-            BaseSimbol::unexpectTag("ControlLine");
+            Simbol::unexpectTag("ControlLine");
             break;
     }
 }
@@ -105,7 +105,7 @@ void TP4::Processor::proc(GroupPart *groupPart)
             break;
         
         default:
-            BaseSimbol::unexpectTag("GroupPart");
+            Simbol::unexpectTag("GroupPart");
     }
 }
 
@@ -146,7 +146,7 @@ void TP4::Processor::proc(IfSection *ifSection)
         
         default:
             mIsValid = false;
-            BaseSimbol::unexpectTag("IfGroup");
+            Simbol::unexpectTag("IfGroup");
     }
 
     // elif-groups
@@ -322,21 +322,23 @@ void TP4::Processor::ctrlDefineIL(ControlLine *controlLine)
     if(controlLine->uni.sDefineIL.replacementList->ppTokens != nullptr)
         macro.repVec = controlLine->uni.sDefineIL.replacementList->ppTokens->ptvec;
     macro.isFunction = true;
-    for(std::size_t i = 0; i < controlLine->uni.sDefineIL.identifierList->ivec.size(); i++)
+    if(controlLine->uni.sDefineIL.identifierList != nullptr)
     {
-        auto pair = macro.paramMap.emplace(controlLine->uni.sDefineIL.identifierList->ivec[i]->str, i);
-        if(!pair.second)
+        for(std::size_t i = 0; i < controlLine->uni.sDefineIL.identifierList->ivec.size(); i++)
         {
-            mIsValid = false;
-            std::cout << "TP4 Processor error:\n"
-                         "    what: macro parameter is duplication.\n"
-                         "    filename: " << Global::CURRENT_FILENAME << "\n"
-                         "    macro name: " << macro.ident
-                      << std::endl;
-            return;
+            auto pair = macro.paramMap.emplace(controlLine->uni.sDefineIL.identifierList->ivec[i]->str, i);
+            if(!pair.second)
+            {
+                mIsValid = false;
+                std::cout << "TP4 Processor error:\n"
+                             "    what: macro parameter is duplication.\n"
+                             "    filename: " << Global::CURRENT_FILENAME << "\n"
+                             "    macro name: " << macro.ident
+                          << std::endl;
+                return;
+            }
         }
     }
-
     emplaceMacro(std::move(macro));
 }
 
@@ -455,7 +457,7 @@ bool TP4::Processor::isEvaluated(PPTokens *ppTokens)
                 ptvec.erase(ptvec.begin() + i,
                             ptvec.begin() + i + 2);
                 ptvec.insert(ptvec.begin() + i,
-                             BaseSimbol::numToPt(isDefined ? "1" : "0"));
+                             Simbol::numToPt(isDefined ? "1" : "0"));
             }
             // defined ( identifier )
             else if(i + 3 < ptvec.size())
@@ -468,7 +470,7 @@ bool TP4::Processor::isEvaluated(PPTokens *ppTokens)
                     ptvec.erase(ptvec.begin() + i,
                                 ptvec.begin() + i + 4);
                     ptvec.insert(ptvec.begin() + i,
-                                 BaseSimbol::numToPt(isDefined ? "1" : "0"));
+                                 Simbol::numToPt(isDefined ? "1" : "0"));
                 }
             }
         }
@@ -482,7 +484,7 @@ bool TP4::Processor::isEvaluated(PPTokens *ppTokens)
     for(auto&& pt : exPtvec)
     {
         if(pt->tag == PPToken::Tag::IDENTIFIER)
-            pt = BaseSimbol::numToPt("0");
+            pt = Simbol::numToPt("0");
     }
 
     if(!mIsValid)
@@ -643,7 +645,7 @@ bool TP4::Processor::expandFunction(std::vector<PPToken*> &src,
             else
                 str = repvec[i + 1]->string();
             
-            repvec[i] = BaseSimbol::strToPt(std::move(str));
+            repvec[i] = Simbol::strToPt(std::move(str));
             repvec.erase(repvec.begin() + i + 1);
             i--;
         }

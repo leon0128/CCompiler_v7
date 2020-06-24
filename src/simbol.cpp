@@ -61,39 +61,21 @@ const std::unordered_map<std::string, Punctuator::Tag> Punctuator::PUNCTUATOR_MA
        {"%:", Tag::HASH},
        {"%:%:", Tag::HSHS}};
 
-bool BaseSimbol::unexpectTag(const char *className) noexcept
+void Simbol::destroy() noexcept
 {
-    std::cerr << "implementation error:\n"
-                 "    class-name: " << className
-              << std::endl;
-
-    return false;
-}
-
-void BaseSimbol::destroy()
-{
-    for(auto&& bs : ALLOCATED_SIMBOLS)
+    for(auto &&bs : BaseSimbol::ALLOCATED_SIMBOLS)
         delete bs;
     
-    ALLOCATED_SIMBOLS.clear();
+    BaseSimbol::ALLOCATED_SIMBOLS.clear();
 }
 
-PPToken *BaseSimbol::strToPt(std::string str)
+bool Simbol::unexpectTag(const char *className) noexcept
 {
-    PPToken *retval = new PPToken();
-    retval->tag = PPToken::Tag::STRING_LITERAL;
-    retval->uni.stringLiteral = new StringLiteral();
-    retval->uni.stringLiteral->str = str;
-    return retval;
-}
-
-PPToken *BaseSimbol::numToPt(std::string str)
-{
-    PPToken *retval = new PPToken();
-    retval->tag = PPToken::Tag::PP_NUMBER;
-    retval->uni.ppNumber = new PPNumber();
-    retval->uni.ppNumber->str = str;
-    return retval;
+    std::cerr << "implementation error:\n"
+                 "    what: unexcepted enumeration.\n"
+                 "    class name: " << className
+              << std::endl;
+    return false;
 }
 
 void *BaseSimbol::operator new(std::size_t size)
@@ -141,7 +123,7 @@ std::string HeaderName::string()
             break;
         
         default:
-            unexpectTag("HeaderName");
+            Simbol::unexpectTag("HeaderName");
             break;
     }
 
@@ -187,7 +169,7 @@ std::string PPToken::string()
             break;
 
         default:
-            unexpectTag("PPToken");
+            Simbol::unexpectTag("PPToken");
     }
 
     return retval;
@@ -207,7 +189,7 @@ std::string Punctuator::string()
     }
 
     if(retval.empty())
-        unexpectTag("Punctuator");
+        Simbol::unexpectTag("Punctuator");
     
     return retval;
 }
@@ -312,7 +294,7 @@ std::string ControlLine::string()
             break;
 
         default:
-            unexpectTag("ControlLine");
+            Simbol::unexpectTag("ControlLine");
     }
 
     return retval;
@@ -377,7 +359,7 @@ std::string GroupPart::string()
             break;
         
         default:
-            unexpectTag("GroupPart");
+            Simbol::unexpectTag("GroupPart");
     }
 
     return retval;
@@ -412,7 +394,7 @@ std::string IfGroup::string()
             break;
         
         default:
-            unexpectTag("IfGroup");
+            Simbol::unexpectTag("IfGroup");
     }
 
     return retval;

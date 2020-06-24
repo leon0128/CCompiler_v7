@@ -19,6 +19,9 @@ namespace TP3
 
 class TP3
 {
+private:
+    static const std::unordered_map<char, char> SIMPLE_ESCAPE_SEQUENCE_MAP;
+
 public:
     static bool execute(std::string &src,
                         std::vector<PPToken*> &ptvec);
