@@ -9,6 +9,13 @@
 
 class BaseSimbol;
 
+class Token;
+class Keyword;
+class Constant;
+class IntegerConstant;
+class FloatingConstant;
+class EnumerationConstant;
+
 class CharacterConstant;
 class HCharSequence;
 class HeaderName;
@@ -58,10 +65,210 @@ public:
     void *operator new[](std::size_t) = delete;
     virtual ~BaseSimbol() noexcept = 0;
 
-    virtual std::string string() = 0;
+    virtual std::string string() const = 0;
 
 private:
     static std::vector<BaseSimbol*> ALLOCATED_SIMBOLS;
+};
+
+class Token : public BaseSimbol
+{
+public:
+    enum class Tag
+    {
+        NONE,
+        KEYWORD,
+        IDENTIFIER,
+        CONSTANT,
+        STRING_LITERAL,
+        PUNCTUATOR
+    } tag;
+
+    union Uni
+    {
+        Keyword *keyword;
+        Identifier *identifier;
+        Constant *constant;
+        StringLiteral *stringLiteral;
+        Punctuator *punctuator;
+    } uni;
+
+    Token() noexcept:
+        BaseSimbol(),
+        tag(Tag::NONE),
+        uni{nullptr}{}
+
+    std::string string() const override;
+};
+
+class Keyword : public BaseSimbol
+{
+public:
+    enum class Tag
+    {
+        NONE,
+        AUTO,
+        BREAK,
+        CASE,
+        CHAR,
+        CONST,
+        CONTINUE,
+        DEFAULT,
+        DO,
+        DOUBLE,
+        ELSE,
+        ENUM,
+        EXTERN,
+        FLOAT,
+        FOR,
+        GOTO,
+        IF,
+        INLINE,
+        INT,
+        LONG,
+        REGISTER,
+        RESTRICT,
+        RETURN,
+        SHORT,
+        SIGNED,
+        SIZEOF,
+        STATIC,
+        STRUCT,
+        SWITCH,
+        TYPEDEF,
+        UNION,
+        UNSIGNED,
+        VOID,
+        VOLATILE,
+        WHILE,
+        ALIGNAS,
+        ALIGNOF,
+        ATOMIC,
+        BOOL,
+        COMPLEX,
+        GENERIC,
+        IMAGINARY,
+        NORETURN,
+        STATIC_ASSERT,
+        THREAD_LOCAL
+    } tag;
+
+    Keyword() noexcept:
+        BaseSimbol(),
+        tag(Tag::NONE){}
+    
+    std::string string() const;
+
+    static const std::unordered_map<std::string, Tag> KEYWORD_MAP;
+};
+
+class Constant : public BaseSimbol
+{
+public:
+    enum class Tag
+    {
+        NONE,
+        INTEGER,
+        FLOATING,
+        ENUMERATION,
+        CHARACTER
+    } tag;
+
+    union Uni
+    {
+        IntegerConstant *integer;
+        FloatingConstant *floating;
+        EnumerationConstant *enumeration;
+        CharacterConstant *character;
+    } uni;
+
+    Constant() noexcept:
+        BaseSimbol(),
+        tag(Tag::NONE),
+        uni{nullptr}{}
+
+    std::string string() const;
+};
+
+class IntegerConstant : public BaseSimbol
+{
+public:
+    enum class PrefixTag
+    {
+        NONE,
+        DECIMAL,
+        OCTAL,
+        HEXADECIMAL
+    } prefixTag;
+    enum class SuffixTag
+    {
+        NONE,
+        UNSIGNED,
+        UNSIGNED_LONG,
+        UNSIGNED_LONG_LONG,
+        LONG,
+        LONG_LONG
+    } suffixTag;
+
+    std::string str;
+
+    IntegerConstant() noexcept:
+        BaseSimbol(),
+        prefixTag(PrefixTag::NONE),
+        suffixTag(SuffixTag::NONE),
+        str(){}
+
+    std::string string() const override;
+};
+
+class FloatingConstant : public BaseSimbol
+{
+public:
+    enum class RadixTag
+    {
+        NONE,
+        DECIMAL,
+        HEXADECIMAL
+    } radixTag;
+    enum class ExponentTag
+    {
+        NONE,
+        PLUS,
+        MINUS
+    } exponentTag;
+    enum class SuffixTag
+    {
+        NONE,
+        FLOAT,
+        LONG
+    } suffixTag;
+
+    std::string integer;
+    std::string decimal;
+    std::string exponent;
+
+    FloatingConstant() noexcept:
+        BaseSimbol(),
+        radixTag(RadixTag::NONE),
+        exponentTag(ExponentTag::NONE),
+        suffixTag(SuffixTag::NONE),
+        integer(),
+        decimal(),
+        exponent(){}
+
+    std::string string() const override;
+};
+
+class EnumerationConstant : public BaseSimbol
+{
+public:
+    Identifier *identifier;
+
+    EnumerationConstant() noexcept:
+        BaseSimbol(),
+        identifier(nullptr){}
+
+    std::string string() const override;
 };
 
 class CharacterConstant : public BaseSimbol
@@ -73,7 +280,7 @@ public:
         BaseSimbol(),
         str(){}
     
-    std::string string() override;
+    std::string string() const  override;
 };
 
 class HCharSequence : public BaseSimbol
@@ -85,7 +292,7 @@ public:
         BaseSimbol(),
         str(){}
 
-    std::string string() override;
+    std::string string() const override;
 };
 
 class HeaderName : public BaseSimbol
@@ -112,7 +319,7 @@ public:
         tag(Tag::NONE),
         uni(){}
 
-    std::string string() override;
+    std::string string() const override;
 };
 
 class Identifier : public BaseSimbol
@@ -124,7 +331,7 @@ public:
         BaseSimbol(),
         str(){}
 
-    std::string string() override;
+    std::string string() const override;
 };
 
 class PPNumber : public BaseSimbol
@@ -136,7 +343,7 @@ public:
         BaseSimbol(),
         str(){}
     
-    std::string string() override;
+    std::string string() const override;
 };
 
 class PPToken : public BaseSimbol
@@ -176,7 +383,7 @@ public:
         uni(),
         isGlued(false){}
     
-    std::string string() override;
+    std::string string() const override;
 };
 
 class Punctuator : public BaseSimbol
@@ -239,7 +446,7 @@ public:
         BaseSimbol(),
         tag(Tag::NONE){}
     
-    std::string string() override;
+    std::string string() const override;
 
     static const std::unordered_map<std::string, Tag> PUNCTUATOR_MAP;
 };
@@ -253,7 +460,7 @@ public:
         BaseSimbol(),
         str(){}
 
-    std::string string() override;
+    std::string string() const override;
 };
 
 class StringLiteral : public BaseSimbol
@@ -265,7 +472,7 @@ public:
         BaseSimbol(),
         str(){}
 
-    std::string string() override;
+    std::string string() const override;
 };
 
 class IdentifierList : public BaseSimbol
@@ -277,7 +484,7 @@ public:
         BaseSimbol(),
         ivec(){}
     
-    std::string string() override;
+    std::string string() const override;
 };
 
 class ControlLine : public BaseSimbol
@@ -352,7 +559,7 @@ public:
         tag(Tag::NONE),
         uni(){}
     
-    std::string string() override;
+    std::string string() const override;
 };
 
 class ElifGroup : public BaseSimbol
@@ -366,7 +573,7 @@ public:
         ppTokens(nullptr),
         group(nullptr){}
     
-    std::string string() override;
+    std::string string() const override;
 };
 
 class ElifGroups : public BaseSimbol
@@ -378,7 +585,7 @@ public:
         BaseSimbol(),
         egvec(){}
 
-    std::string string() override;
+    std::string string() const override;
 };
 
 class ElseGroup : public BaseSimbol
@@ -390,7 +597,7 @@ public:
         BaseSimbol(),
         group(nullptr){}
     
-    std::string string() override;
+    std::string string() const override;
 };
 
 class Group : public BaseSimbol
@@ -402,7 +609,7 @@ public:
         BaseSimbol(),
         gpvec(){}
 
-    std::string string() override;
+    std::string string() const override;
 };
 
 class GroupPart : public BaseSimbol
@@ -433,7 +640,7 @@ public:
         tag(Tag::NONE),
         uni(){}
     
-    std::string string() override;
+    std::string string() const override;
 };
 
 class IfGroup : public BaseSimbol
@@ -474,7 +681,7 @@ public:
         tag(Tag::NONE),
         uni(){}
 
-    std::string string() override;
+    std::string string() const override;
 };
 
 class IfSection : public BaseSimbol
@@ -490,7 +697,7 @@ public:
         elifGroups(nullptr),
         elseGroup(nullptr){}
     
-    std::string string() override;
+    std::string string() const override;
 };
 
 class NonDirective : public BaseSimbol
@@ -502,7 +709,7 @@ public:
         BaseSimbol(),
         ppTokens(nullptr){}
     
-    std::string string() override;
+    std::string string() const override;
 };
 
 class PPFile : public BaseSimbol
@@ -514,7 +721,7 @@ public:
         BaseSimbol(),
         group(nullptr){}
 
-    std::string string() override;
+    std::string string() const override;
 };
 
 class PPTokens : public BaseSimbol
@@ -526,7 +733,7 @@ public:
         BaseSimbol(),
         ptvec(){}
     
-    std::string string() override;
+    std::string string() const override;
 };
 
 class ReplacementList : public BaseSimbol
@@ -538,7 +745,7 @@ public:
         BaseSimbol(),
         ppTokens(nullptr){}
     
-    std::string string() override;
+    std::string string() const override;
 };
 
 class TextLine : public BaseSimbol
@@ -550,7 +757,7 @@ public:
         BaseSimbol(),
         ppTokens(nullptr){}
     
-    std::string string() override;
+    std::string string() const override;
 };
 
 template<class String>

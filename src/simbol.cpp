@@ -5,6 +5,52 @@
 
 std::vector<BaseSimbol*> BaseSimbol::ALLOCATED_SIMBOLS;
 
+const std::unordered_map<std::string, Keyword::Tag> Keyword::KEYWORD_MAP
+    = {{"auto", Tag::AUTO},
+       {"break", Tag::BREAK},
+       {"case", Tag::CASE},
+       {"char", Tag::CHAR},
+       {"const", Tag::CONST},
+       {"continue", Tag::CONTINUE},
+       {"default", Tag::DEFAULT},
+       {"do", Tag::DO},
+       {"double", Tag::DOUBLE},
+       {"else", Tag::ELSE},
+       {"enum", Tag::ENUM},
+       {"extern", Tag::EXTERN},
+       {"float", Tag::FLOAT},
+       {"for", Tag::FOR},
+       {"goto", Tag::GOTO},
+       {"if", Tag::IF},
+       {"inline", Tag::INLINE},
+       {"int", Tag::INT},
+       {"long", Tag::LONG},
+       {"register", Tag::REGISTER},
+       {"restrict", Tag::RESTRICT},
+       {"return", Tag::RETURN},
+       {"short", Tag::SHORT},
+       {"signed", Tag::SIGNED},
+       {"sizeof", Tag::SIZEOF},
+       {"static", Tag::STATIC},
+       {"struct", Tag::STRUCT},
+       {"switch", Tag::SWITCH},
+       {"typedef", Tag::TYPEDEF},
+       {"union", Tag::UNION},
+       {"unsigned", Tag::UNSIGNED},
+       {"void", Tag::VOID},
+       {"volatile", Tag::VOLATILE},
+       {"while", Tag::WHILE},
+       {"_Alignas", Tag::ALIGNAS},
+       {"_Alignof", Tag::ALIGNOF},
+       {"_Atomic", Tag::ATOMIC},
+       {"_Bool", Tag::BOOL},
+       {"_Complex", Tag::COMPLEX},
+       {"_Generic", Tag::GENERIC},
+       {"_Imaginary", Tag::IMAGINARY},
+       {"_Noreturn", Tag::NORETURN},
+       {"_Static_assert", Tag::STATIC_ASSERT},
+       {"_Thread_local", Tag::THREAD_LOCAL}};
+
 const std::unordered_map<std::string, Punctuator::Tag> Punctuator::PUNCTUATOR_MAP
     = {{"[", Tag::SL_PAREN},
        {"]", Tag::SR_PAREN},
@@ -89,7 +135,197 @@ BaseSimbol::~BaseSimbol() noexcept
 {
 }
 
-std::string CharacterConstant::string()
+std::string Token::string() const
+{
+    std::string retval;
+    switch(tag)
+    {
+        case(Tag::KEYWORD):
+            retval = uni.keyword->string();
+            break;
+        case(Tag::IDENTIFIER):
+            retval = uni.identifier->string();
+            break;
+        case(Tag::CONSTANT):
+            retval = uni.constant->string();
+            break;
+        case(Tag::STRING_LITERAL):
+            retval = uni.stringLiteral->string();
+            break;
+        case(Tag::PUNCTUATOR):
+            retval = uni.punctuator->string();
+            break;
+        
+        default:
+            Simbol::unexpectTag("Token");
+    }
+
+    return retval;
+}
+
+std::string Keyword::string() const
+{
+    std::string retval;
+    for(auto &&p : KEYWORD_MAP)
+    {
+        if(p.second == tag)
+        {
+            retval = p.first;
+            break;
+        }
+    }
+
+    return retval;
+}
+
+std::string Constant::string() const
+{
+    std::string retval;
+    switch(tag)
+    {
+        case(Tag::INTEGER):
+            retval = uni.integer->string();
+            break;
+        case(Tag::FLOATING):
+            retval = uni.floating->string();
+            break;
+        case(Tag::ENUMERATION):
+            retval = uni.enumeration->string();
+            break;
+        case(Tag::CHARACTER):
+            retval = uni.character->string();
+            break;
+        
+        default:
+            Simbol::unexpectTag("Constant");
+    }
+
+    return retval;
+}
+
+std::string IntegerConstant::string() const
+{
+    std::string retval;
+
+    switch(prefixTag)
+    {
+        case(PrefixTag::DECIMAL):
+            break;
+        case(PrefixTag::OCTAL):
+            retval.push_back('0');
+            break;
+        case(PrefixTag::HEXADECIMAL):
+            retval += "0x";
+            break;
+        
+        default:
+            Simbol::unexpectTag("IntegerConstant");
+    }
+
+    retval += str;
+
+    switch(suffixTag)
+    {
+        case(SuffixTag::NONE):
+            break;
+        case(SuffixTag::UNSIGNED):
+            retval.push_back('u');
+            break;
+        case(SuffixTag::UNSIGNED_LONG):
+            retval += "ul";
+            break;
+        case(SuffixTag::UNSIGNED_LONG_LONG):
+            retval += "ull";
+            break;
+        case(SuffixTag::LONG):
+            retval.push_back('l');
+            break;
+        case(SuffixTag::LONG_LONG):
+            retval += "ll";
+            break;
+        
+        default:
+            Simbol::unexpectTag("IntegerConstant");
+    }
+
+    return retval;
+}
+
+std::string FloatingConstant::string() const
+{
+    std::string retval;
+
+    switch(radixTag)
+    {
+        case(RadixTag::DECIMAL):
+            break;
+        case(RadixTag::HEXADECIMAL):
+            retval += "0x";
+            break;
+        
+        default:
+            Simbol::unexpectTag("FloatingConstant");
+    }
+
+    retval += integer;
+    retval.push_back('.');
+    retval += decimal;
+
+    switch(radixTag)
+    {
+        case(RadixTag::DECIMAL):
+            retval.push_back('e');
+            break;
+        case(RadixTag::HEXADECIMAL):
+            retval.push_back('p');
+            break;
+        
+        default:
+            Simbol::unexpectTag("FloatingConstant");
+    }
+
+    switch(exponentTag)
+    {
+        case(ExponentTag::NONE):
+            retval.push_back('+');
+            break;
+        case(ExponentTag::PLUS):
+            retval.push_back('+');
+            break;
+        case(ExponentTag::MINUS):
+            retval.push_back('-');
+            break;
+        
+        default:
+            Simbol::unexpectTag("FloatingConstant");
+    }
+
+    retval += exponent;
+
+    switch(suffixTag)
+    {
+        case(SuffixTag::NONE):
+            break;
+        case(SuffixTag::FLOAT):
+            retval.push_back('f');
+            break;
+        case(SuffixTag::LONG):
+            retval.push_back('l');
+            break;
+        
+        default:
+            Simbol::unexpectTag("FloatingConstant");
+    }
+
+    return retval;
+}
+
+std::string EnumerationConstant::string() const
+{
+    return identifier->string();
+}
+
+std::string CharacterConstant::string() const
 {
     std::string retval = "'";
     retval += str;
@@ -97,7 +333,7 @@ std::string CharacterConstant::string()
     return retval;
 }
 
-std::string HCharSequence::string()
+std::string HCharSequence::string() const
 {
     std::string retval = "<";
     retval += str;
@@ -105,7 +341,7 @@ std::string HCharSequence::string()
     return retval;
 }
 
-std::string HeaderName::string()
+std::string HeaderName::string() const
 {
     std::string retval;
 
@@ -130,17 +366,17 @@ std::string HeaderName::string()
     return retval;
 }
 
-std::string Identifier::string()
+std::string Identifier::string() const
 {
     return str;
 }
 
-std::string PPNumber::string()
+std::string PPNumber::string() const
 {
     return str;
 }
 
-std::string PPToken::string()
+std::string PPToken::string() const
 {
     std::string retval = isGlued ? "" : " ";
 
@@ -175,7 +411,7 @@ std::string PPToken::string()
     return retval;
 }
 
-std::string Punctuator::string()
+std::string Punctuator::string() const
 {
     std::string retval;
 
@@ -194,7 +430,7 @@ std::string Punctuator::string()
     return retval;
 }
 
-std::string QCharSequence::string()
+std::string QCharSequence::string() const
 {
     std::string retval = "\"";
     retval += str;
@@ -202,7 +438,7 @@ std::string QCharSequence::string()
     return retval;
 }
 
-std::string StringLiteral::string()
+std::string StringLiteral::string() const
 {
     std::string retval = "\"";
     retval += str;
@@ -210,7 +446,7 @@ std::string StringLiteral::string()
     return retval;
 }
 
-std::string IdentifierList::string()
+std::string IdentifierList::string() const
 {
     std::string retval;
     for(std::size_t i = 0; i < ivec.size(); i++)
@@ -223,7 +459,7 @@ std::string IdentifierList::string()
     return retval;
 }
 
-std::string ControlLine::string()
+std::string ControlLine::string() const
 {
     std::string retval = std::string(1, '#');
 
@@ -300,7 +536,7 @@ std::string ControlLine::string()
     return retval;
 }
 
-std::string ElifGroup::string()
+std::string ElifGroup::string() const
 {
     std::string retval = "#elif ";
     retval += ppTokens->string();
@@ -311,7 +547,7 @@ std::string ElifGroup::string()
     return retval;
 }
 
-std::string ElifGroups::string()
+std::string ElifGroups::string() const
 {
     std::string retval;
     for(auto&& eg : egvec)
@@ -320,7 +556,7 @@ std::string ElifGroups::string()
     return retval;
 }
 
-std::string ElseGroup::string()
+std::string ElseGroup::string() const
 {
     std::string retval = "#else\n";
     if(group != nullptr)
@@ -329,7 +565,7 @@ std::string ElseGroup::string()
     return retval;
 }
 
-std::string Group::string()
+std::string Group::string() const
 {
     std::string retval;
     for(auto&& gp : gpvec)
@@ -338,7 +574,7 @@ std::string Group::string()
     return retval;
 }
 
-std::string GroupPart::string()
+std::string GroupPart::string() const
 {
     std::string retval;
 
@@ -365,7 +601,7 @@ std::string GroupPart::string()
     return retval;
 }
 
-std::string IfGroup::string()
+std::string IfGroup::string() const
 {
     std::string retval = std::string(1, '#');
     
@@ -400,7 +636,7 @@ std::string IfGroup::string()
     return retval;
 }
 
-std::string IfSection::string()
+std::string IfSection::string() const
 {
     std::string retval = ifGroup->string();
     if(elifGroups != nullptr)
@@ -412,19 +648,19 @@ std::string IfSection::string()
     return retval;
 }
 
-std::string NonDirective::string()
+std::string NonDirective::string() const
 {
     std::string retval = ppTokens->string();
     retval.push_back('\n');
     return retval;
 }
 
-std::string PPFile::string()
+std::string PPFile::string() const
 {
     return (group != nullptr) ? group->string() : std::string();
 }
 
-std::string PPTokens::string()
+std::string PPTokens::string() const
 {
     std::string retval;
     for(auto&& pt : ptvec)
@@ -433,12 +669,12 @@ std::string PPTokens::string()
     return retval;
 }
 
-std::string ReplacementList::string()
+std::string ReplacementList::string() const
 {
     return (ppTokens != nullptr) ? ppTokens->string() : std::string();
 }
 
-std::string TextLine::string()
+std::string TextLine::string() const
 {
     std::string retval = (ppTokens != nullptr) ? ppTokens->string() : std::string();
     retval.push_back('\n');
