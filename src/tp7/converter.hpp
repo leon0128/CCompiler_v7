@@ -28,7 +28,7 @@ private:
     static FloatingConstant *convFloating(const std::string&);
 
 // function-definition macro
-// bool (*)(const std::string&, std::size_t) noexcept
+// type = bool (*)(const std::string&, std::size_t) noexcept
 #define IS_MATCH_CONDITION(func_name, count, conditional_expression) \
     inline static bool func_name(const std::string &str, std::size_t idx) noexcept \
     { \
@@ -55,7 +55,7 @@ private:
                        ((str[idx] >= '0' && str[idx] <= '9') ||
                         (str[idx] >= 'a' && str[idx] <= 'f') ||
                         (str[idx] >= 'A' && str[idx] <= 'F')))
-    // integer-constant suffix
+    // suffix
     IS_MATCH_CONDITION(isUnsignedSuffix, 1,
                        (str[idx] == 'u' || str[idx] == 'U'))
     IS_MATCH_CONDITION(isLongSuffix, 1,
@@ -63,6 +63,20 @@ private:
     IS_MATCH_CONDITION(isLongLongSuffix, 2,
                        ((str[idx] == 'l' && str[idx + 1] == 'l') &&
                         (str[idx] == 'L' && str[idx + 1] == 'L')))
+    IS_MATCH_CONDITION(isFloatSuffix, 1,
+                       (str[idx] == 'f' || str[idx] == 'F'))
+    // exponent
+    IS_MATCH_CONDITION(isExponent, 1,
+                       (str[idx] == 'e' || str[idx] == 'E'))
+    IS_MATCH_CONDITION(isBinaryExponent, 1,
+                       (str[idx] == 'p' || str[idx] == 'P'))
+    // other
+    IS_MATCH_CONDITION(isDot, 1,
+                       (str[idx] == '.'))
+    IS_MATCH_CONDITION(isPlus, 1,
+                       (str[idx] == '+'))
+    IS_MATCH_CONDITION(isMinus, 1,
+                       (str[idx] == '-'))
 #undef IS_MATCH_CONDITION
 };
 

@@ -185,3 +185,94 @@ IntegerConstant *TP7::Converter::convInteger(const std::string &str)
         ? new IntegerConstant(std::move(retval))
             : nullptr;
 }
+
+FloatingConstant *TP7::Converter::convFloating(const std::string &str)
+{
+    FloatingConstant retval;
+    std::size_t idx = 0;
+    bool (*isValidValue)(const std::string&, std::size_t) = nullptr;
+    bool (*isValidExponent)(const std::string&, std::size_t) = nullptr;
+    bool isConsumedDot = false;
+    bool isConsumedExponent = false;
+
+    retval.radixTag = FloatingConstant::RadixTag::DECIMAL;
+    
+    // prefix
+    if(isHexadecimalPrefix(str, idx))
+    {
+        idx += 2;
+        retval.radixTag = FloatingConstant::RadixTag::HEXADECIMAL;
+        isValidValue = &isHexadecimal;
+        isValidExponent = &isBinaryExponent;
+    }
+    else
+    {
+        retval.radixTag = FloatingConstant::RadixTag::DECIMAL;
+        isValidValue = &isDecimal;
+        isValidExponent = &isExponent;
+    }
+
+    // integer part
+    while(isValidValue(str, idx))
+        retval.integer.push_back(str[idx++]);
+
+    // fractional and decimal part
+    if(isDot(str, idx))
+    {
+        idx++;
+        isConsumedDot = true;
+        while(isValidValue(str, idx))
+            retval.decimal.push_back(str[idx++]);  
+    }
+
+    // exponent-part
+    if(isValidExponent(str, idx))
+    {
+        idx++;
+        isConsumedExponent = true;
+        if(isPlus(str, idx))
+            retval.exponentTag = FloatingConstant::ExponentTag::PLUS;
+        else if(isMinus(str, idx))
+            retval.exponentTag = FloatingConstant::ExponentTag::MINUS;
+        
+        if(retval.exponentTag != FloatingConstant::ExponentTag::NONE)
+            idx++;
+
+        while(isDecimal(str, idx))
+            retval.exponent.push_back(str[idx++]);
+    }
+
+    // suffix
+    if(isFloatSuffix(str, idx))
+    {
+        idx++;
+        retval.suffixTag = FloatingConstant::SuffixTag::FLOAT;
+    }
+    else if(isLongSuffix(str, idx))
+    {
+        idx++;
+        retval.suffixTag = FloatingConstant::SuffixTag::LONG;
+    }
+
+    // check invalid form
+    if(idx != str.size())
+        return nullptr;
+    if(isConsumedDot &&
+       retval.integer.empty() &&
+       retval.decimal.empty())
+        return nullptr;
+    if(!isConsumedDot &&
+       retval.integer.empty())
+        return nullptr;
+    if(isConsumedExponent &&
+       retval.exponent.empty())
+        return nullptr;
+    if(!isConsumedDot &&
+       !isConsumedExponent)
+        return nullptr;
+    if(retval.radixTag == FloatingConstant::RadixTag::HEXADECIMAL &&
+       !isConsumedExponent)
+        return nullptr;
+    
+    return new FloatingConstant(std::move(retval));
+}
