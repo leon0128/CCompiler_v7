@@ -12,7 +12,7 @@ namespace TP7
 class TP7
 {
 public:
-    static bool execute(std::vector<PPToken*>&,
+    static bool execute(const std::vector<PPToken*>&,
                         std::string&);
 };
 

@@ -3,7 +3,7 @@
 #include "../simbol.hpp"
 #include "converter.hpp"
 
-bool TP7::Converter::execute(std::vector<PPToken*> &src,
+bool TP7::Converter::execute(const std::vector<PPToken*> &src,
                              std::vector<Token*> &dst)
 {
     bool isValid = true;

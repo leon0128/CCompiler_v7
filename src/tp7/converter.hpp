@@ -12,7 +12,7 @@ namespace TP7
 class Converter
 {
 public:
-    static bool execute(std::vector<PPToken*>&,
+    static bool execute(const std::vector<PPToken*>&,
                         std::vector<Token*>&);
 
 private:

@@ -49,7 +49,10 @@ bool Controller::execute(const char *filename)
         isValid = TP7::TP7::execute(ptvec, dst);
 
     if(isValid)
-        output(dst);
+    {
+        // output(dst);
+        std::cout << dst << std::flush;
+    }
 
     Simbol::destroy();
     return true;
