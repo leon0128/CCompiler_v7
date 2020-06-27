@@ -1,0 +1,5 @@
+#ifndef TP7_TYPE_SPECIFIER_HPP
+#define TP7_TYPE_SPECIFIER_HPP
+
+
+#endif

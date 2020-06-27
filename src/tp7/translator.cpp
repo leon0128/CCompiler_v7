@@ -1,8 +1,5 @@
 #include <iostream>
 
-#include "scope.hpp"
-#include "type.hpp"
-#include "object.hpp"
 #include "translator.hpp"
 
 bool TP7::Translator::execute(const std::vector<Token*> &tvec,
@@ -21,14 +18,8 @@ TP7::Translator::Translator(const std::vector<Token*> &tvec) noexcept:
     mTvec(tvec),
     mSStr(),
     mIdx(0),
-    mScope(new Scope(Scope::KindTag::FILE)),
     mIsValid(true)
 {
-}
-
-TP7::Translator::~Translator() noexcept
-{
-    delete mScope;
 }
 
 void TP7::Translator::translate()

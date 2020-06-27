@@ -10,8 +10,6 @@
 namespace TP7
 {
 
-class Scope;
-
 class Translator
 {
 public:
@@ -20,7 +18,6 @@ public:
 
 private:
     Translator(const std::vector<Token*>&) noexcept;
-    ~Translator() noexcept;
 
     void translate();
 
@@ -36,7 +33,6 @@ private:
     const std::vector<Token*> &mTvec;
     std::stringstream mSStr;
     std::size_t mIdx;
-    Scope *mScope;
     bool mIsValid;
 };
 
