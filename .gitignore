@@ -1,3 +1,4 @@
 Compiler
 *.o
 res/*
+*.s

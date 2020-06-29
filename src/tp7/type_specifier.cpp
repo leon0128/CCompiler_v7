@@ -168,14 +168,10 @@ bool TypeSpecifier::read()
         if(ostr && osize && oalign)
         {
             auto nameIter = TYPE_NAME_MAP.find(*ostr);
-            auto attrIter
-                = nameIter != TYPE_NAME_MAP.end()
-                    ? TYPE_ATTRIBUTE_MAP.find(nameIter->second)
-                        : TYPE_ATTRIBUTE_MAP.end();
-            if(attrIter != TYPE_ATTRIBUTE_MAP.end())
+            if(nameIter != TYPE_NAME_MAP.end())
             {
-                attrIter->second.size = *osize;
-                attrIter->second.align = *oalign;
+                TYPE_ATTRIBUTE_MAP
+                    .emplace(nameIter->second, TypeAttribute{*osize, *oalign});
             }
             else
                 isValid = false;

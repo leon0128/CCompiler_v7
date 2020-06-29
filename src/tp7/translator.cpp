@@ -64,7 +64,6 @@ bool TP7::Translator::procExternalDeclaration()
 
 bool TP7::Translator::procDeclaration()
 {
-    bool isValid = false;
     auto befidx = mIdx;
 
     // declaration-specifiers
@@ -103,8 +102,31 @@ bool TP7::Translator::procDeclaration()
         return false;
     }
 
-    // write
+    // semicolon
+    if(isMatch(mIdx, Punctuator::Tag::SEMI_COL))
+        mIdx++;
+    else
+    {
+        mIsValid = false;
+        std::cout << "TP7 Translator error:\n"
+            "    what: semicolon not exists.\n"
+            "    idx: " << mIdx
+            << std::endl;
+        mIdx = befidx;
+        return false;
+    }
 
+    // write
+    mSStr << "\n# define identifier\n"
+        "    .bss\n"
+        "    .global " << identifier->str << "\n"
+        "    .type   " << identifier->str << ", STT_OBJECT\n"
+        "    .size   " << identifier->str << ", " << TypeSpecifier::getAttributeMap().at(typeSpecifierTag).size << "\n"
+        << identifier->str << ":\n"
+        "    .zero   " << TypeSpecifier::getAttributeMap().at(typeSpecifierTag).size
+        << std::endl;
+
+    return true;
 }
 
 bool TP7::Translator::isMatch(std::size_t idx, Punctuator::Tag tag) const noexcept

@@ -89,6 +89,6 @@
             "type": "bool",
             "size": 1,
             "align": 1
-        },
+        }
     ]
 }
