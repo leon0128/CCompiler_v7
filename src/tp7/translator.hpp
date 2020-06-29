@@ -28,7 +28,7 @@ private:
 
     bool isMatch(std::size_t idx, Punctuator::Tag tag) const noexcept;
     bool isMatch(std::size_t idx, Keyword::Tag tag) const noexcept;
-    bool isIdentifier(std::size_t idx) const noexcept;
+    bool isMatch(std::size_t idx, Token::Tag tag) const noexcept;
 
     const std::vector<Token*> &mTvec;
     std::stringstream mSStr;

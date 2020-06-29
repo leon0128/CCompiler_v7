@@ -6,5 +6,89 @@
         "/usr/local/include",
         "/usr/include/x86_64-linux-gnu",
         "/usr/include"
+    ],
+    
+    "type_attribute":
+    [
+        {
+            "type": "void",
+            "size": 0,
+            "align": 0
+        },
+        {
+            "type": "char",
+            "size": 1,
+            "align": 1
+        },
+        {
+            "type": "s_char",
+            "size": 1,
+            "align": 1
+        },
+        {
+            "type": "u_char",
+            "size": 1,
+            "align": 1
+        },
+        {
+            "type": "s_short",
+            "size": 2,
+            "align": 2
+        },
+        {
+            "type": "u_short",
+            "size": 2,
+            "align": 2
+        },
+        {
+            "type": "s_int",
+            "size": 4,
+            "align": 4
+        },
+        {
+            "type": "u_int",
+            "size": 4,
+            "align": 4
+        },
+        {
+            "type": "s_long",
+            "size": 8,
+            "align": 8
+        },
+        {
+            "type": "u_long",
+            "size": 8,
+            "align": 8
+        },
+        {
+            "type": "s_long_long",
+            "size": 8,
+            "align": 8
+        },
+        {
+            "type": "u_long_long",
+            "size": 8,
+            "align": 8
+        },
+        {
+            "type": "float",
+            "size": 4,
+            "align": 4
+        },
+        {
+            "type": "double",
+            "size": 8,
+            "align": 8
+        },
+        {
+            "type": "long_double",
+            "size": 16,
+            "align": 16
+        },
+        {
+            "type": "bool",
+            "size": 1,
+            "align": 1
+        },
     ]
 }

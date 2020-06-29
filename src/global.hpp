@@ -14,6 +14,7 @@ namespace Global
         
         extern const std::string PREDEFINED_MACRO_FILENAME_KEY;
         extern const std::string SYSTEM_INCLUDE_PATHS_KEY;
+        extern const std::string TYPE_ATTRIBUTE_KEY;
 
         extern std::string PREDEFINED_MACRO_FILENAME;
         extern std::vector<std::string> INCLUDE_SYSTEM_PATHS;

@@ -1,10 +1,14 @@
 #include <iostream>
 
+#include "type_specifier.hpp"
 #include "translator.hpp"
 
 bool TP7::Translator::execute(const std::vector<Token*> &tvec,
                               std::string &dst)
 {
+    if(!TypeSpecifier::initialize())
+        return false;
+
     Translator translator(tvec);
     translator.translate();
 
@@ -64,37 +68,43 @@ bool TP7::Translator::procDeclaration()
     auto befidx = mIdx;
 
     // declaration-specifiers
-    if(isMatch(mIdx, Keyword::Tag::INT))
+    std::vector<Keyword::Tag> typeSpecifierVec;
+    while(isMatch(mIdx, Token::Tag::KEYWORD)
+        ? TypeSpecifier::isTypeSpecifier(mTvec[mIdx]->uni.keyword->tag)
+            : false)
+        typeSpecifierVec.push_back(mTvec[mIdx++]->uni.keyword->tag);
+
+    // get TypeSpecifier::Tag
+    TypeSpecifier::Tag typeSpecifierTag = TypeSpecifier::convert(typeSpecifierVec);
+    if(typeSpecifierTag == TypeSpecifier::Tag::NONE)
     {
-        mIdx++;
-        if(isIdentifier(mIdx))
-        {
-            mIdx++;
-            
-            mSStr << "    .global " << mTvec[mIdx - 1]->uni.identifier->str << "\n"
-                     "    .data\n"
-                     "    .align 4\n"
-                     "    .type " << mTvec[mIdx - 1]->uni.identifier->str << ", @object" << "\n"
-                     "    .size " << mTvec[mIdx - 1]->uni.identifier->str << ", 4\n"
-                  << mTvec[mIdx - 1]->uni.identifier->str << ":\n"
-                     "    .long 0\n"
+        mIsValid = false;
+        std::cout << "TP7 Translator error:\n"
+                     "    what: failed to convert to type from type-specifier.\n"
+                     "    idx: " << mIdx
                   << std::endl;
-
-            if(isMatch(mIdx, Punctuator::Tag::SEMI_COL))
-            {
-                mIdx++;
-                isValid = true;
-            }
-        }
-    }
-
-    if(isValid)
-        return true;
-    else
-    {
         mIdx = befidx;
         return false;
     }
+
+    // declarator
+    Identifier *identifier
+        = isMatch(mIdx, Token::Tag::IDENTIFIER)
+            ? mTvec[mIdx++]->uni.identifier
+                : nullptr;
+    if(identifier == nullptr)
+    {
+        mIsValid = false;
+        std::cout << "TP7 Translator error:\n"
+                     "    what: failed to get identifier.\n"
+                     "    idx: " << mIdx
+                  << std::endl;
+        mIdx = befidx;
+        return false;
+    }
+
+    // write
+
 }
 
 bool TP7::Translator::isMatch(std::size_t idx, Punctuator::Tag tag) const noexcept
@@ -115,9 +125,9 @@ bool TP7::Translator::isMatch(std::size_t idx, Keyword::Tag tag) const noexcept
                     : false;
 }
 
-bool TP7::Translator::isIdentifier(std::size_t idx) const noexcept
+bool TP7::Translator::isMatch(std::size_t idx, Token::Tag tag) const noexcept
 {
     return idx < mTvec.size()
-        ? mTvec[idx]->tag == Token::Tag::IDENTIFIER
+        ? mTvec[idx]->tag == tag
             : false;
 }
