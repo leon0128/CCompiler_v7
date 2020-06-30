@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "type_specifier.hpp"
+#include "scope.hpp"
 #include "translator.hpp"
 
 bool TP7::Translator::execute(const std::vector<Token*> &tvec,
@@ -101,6 +102,16 @@ bool TP7::Translator::procDeclaration()
         mIdx = befidx;
         return false;
     }
+    if(!Scope::emplace(identifier->str))
+    {
+        mIsValid = false;
+        std::cout << "TP7 Translator error:\n"
+            "    what: identifier is redefined.\n"
+            "    ident: " << identifier->str
+            << std::endl;
+        mIdx = befidx;
+        return false;
+    }
 
     // semicolon
     if(isMatch(mIdx, Punctuator::Tag::SEMI_COL))
@@ -117,13 +128,10 @@ bool TP7::Translator::procDeclaration()
     }
 
     // write
-    mSStr << "\n# define identifier\n"
-        "    .bss\n"
-        "    .global " << identifier->str << "\n"
-        "    .type   " << identifier->str << ", STT_OBJECT\n"
-        "    .size   " << identifier->str << ", " << TypeSpecifier::getAttributeMap().at(typeSpecifierTag).size << "\n"
-        << identifier->str << ":\n"
-        "    .zero   " << TypeSpecifier::getAttributeMap().at(typeSpecifierTag).size
+    mSStr << "    .comm " 
+        << identifier->str << ", "
+        << TypeSpecifier::getAttributeMap().at(typeSpecifierTag).size << ", "
+        << TypeSpecifier::getAttributeMap().at(typeSpecifierTag).align
         << std::endl;
 
     return true;
