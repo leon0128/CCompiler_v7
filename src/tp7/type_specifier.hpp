@@ -25,6 +25,8 @@ public:
 
     static Tag convert(std::vector<Keyword::Tag>&);
     static bool isTypeSpecifier(Keyword::Tag) noexcept;
+    static bool isIntegerType(Tag) noexcept;
+    static bool isFloatingType(Tag) noexcept;
 
     static const std::unordered_map<Tag, TypeAttribute> &getAttributeMap() noexcept
         {return TYPE_ATTRIBUTE_MAP;}

@@ -2,6 +2,8 @@
 
 #include "type_specifier.hpp"
 #include "scope.hpp"
+#include "arithmetic_type.hpp"
+#include "tokenizer.hpp"
 #include "translator.hpp"
 
 bool TP7::Translator::execute(const std::vector<Token*> &tvec,

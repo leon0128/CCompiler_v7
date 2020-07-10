@@ -130,6 +130,35 @@ bool TypeSpecifier::isTypeSpecifier(Keyword::Tag tag) noexcept
     return TYPE_SPECIFIER_SET.find(tag) != TYPE_SPECIFIER_SET.end();
 }
 
+bool TypeSpecifier::isIntegerType(TypeSpecifier::Tag tag) noexcept
+{
+    if(tag == Tag::CHAR ||
+        tag == Tag::S_CHAR ||
+        tag == Tag::U_CHAR ||
+        tag == Tag::S_SHORT ||
+        tag == Tag::U_SHORT ||
+        tag == Tag::S_INT ||
+        tag == Tag::U_INT ||
+        tag == Tag::S_LONG ||
+        tag == Tag::U_LONG ||
+        tag == Tag::S_LONG_LONG ||
+        tag == Tag::U_LONG_LONG ||
+        tag == Tag::BOOL)
+        return true;
+    else
+        return false;
+}
+
+bool TypeSpecifier::isFloatingType(TypeSpecifier::Tag tag) noexcept
+{
+    if(tag == Tag::FLOAT ||
+        tag == Tag::DOUBLE ||
+        tag == Tag::LONG_DOUBLE)
+        return true;
+    else
+        return false;
+}
+
 void TypeSpecifier::sort()
 {
     for(auto &&p : TYPE_SPECIFIER_MAP)

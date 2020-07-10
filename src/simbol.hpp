@@ -187,7 +187,7 @@ public:
         tag(Tag::NONE),
         uni{nullptr}{}
 
-    std::string string() const;
+    std::string string() const override;
 };
 
 class IntegerConstant : public BaseSimbol
@@ -788,6 +788,30 @@ PPToken *Simbol::puncToPt(Tag tag)
     retval->uni.punctuator = new Punctuator();
     retval->uni.punctuator->tag = tag;
     return retval;
+}
+
+namespace Simbol
+{
+    extern bool isMatch(const std::vector<Token*> &vec,
+        std::size_t idx,
+        Punctuator::Tag tag);
+    extern bool isMatch(const std::vector<Token*> &vec,
+        std::size_t idx,
+        Keyword::Tag tag);
+    extern bool isMatch(const std::vector<Token*> &vec,
+        std::size_t idx,
+        Token::Tag tag);
+    template<class String>
+    extern bool isMatch(const std::vector<Token*> &vec,
+        std::size_t idx,
+        String &&str)
+    {
+        return idx < vec.size()
+            ? vec[idx]->tag == Token::Tag::IDENTIFIER
+                ? vec[idx]->uni.identifier->str == std::forward(str)
+                    : false
+                        : false;
+    }
 }
 
 #endif

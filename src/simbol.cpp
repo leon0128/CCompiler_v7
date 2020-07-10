@@ -124,6 +124,37 @@ bool Simbol::unexpectTag(const char *className) noexcept
     return false;
 }
 
+bool Simbol::isMatch(const std::vector<Token*> &vec,
+    std::size_t idx,
+    Punctuator::Tag tag)
+{
+    return idx < vec.size()
+        ? vec[idx]->tag == Token::Tag::PUNCTUATOR
+            ? vec[idx]->uni.punctuator->tag == tag
+                : false
+                    : false;
+}
+
+bool Simbol::isMatch(const std::vector<Token*> &vec,
+    std::size_t idx,
+    Keyword::Tag tag)
+{
+    return idx < vec.size()
+        ? vec[idx]->tag == Token::Tag::KEYWORD
+            ? vec[idx]->uni.keyword->tag == tag
+                : false
+                    : false;
+}
+
+bool Simbol::isMatch(const std::vector<Token*> &vec,
+    std::size_t idx,
+    Token::Tag tag)
+{
+    return idx < vec.size()
+        ? vec[idx]->tag == tag
+            : false;
+}
+
 void *BaseSimbol::operator new(std::size_t size)
 {
     void *alloc = ::operator new(size);
