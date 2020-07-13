@@ -53,7 +53,36 @@ public:
         uni{false}{}
     Tag tag;
     Uni uni;
+
+    bool isNonzero() const;
+    bool isInteger() const noexcept;
+    bool isFloating() const noexcept;
+    bool isArithmetic() const noexcept;
+    ArithmeticType& cast(Tag);
+    
+    static Tag resultType(Tag lhs, Tag rhs);
 };
+
+ArithmeticType operator |(const ArithmeticType&, const ArithmeticType&);
+ArithmeticType operator ^(const ArithmeticType&, const ArithmeticType&);
+ArithmeticType operator &(const ArithmeticType&, const ArithmeticType&);
+ArithmeticType operator ==(const ArithmeticType&, const ArithmeticType&);
+ArithmeticType operator !=(const ArithmeticType&, const ArithmeticType&);
+ArithmeticType operator <(const ArithmeticType&, const ArithmeticType&);
+ArithmeticType operator >(const ArithmeticType&, const ArithmeticType&);
+ArithmeticType operator <=(const ArithmeticType&, const ArithmeticType&);
+ArithmeticType operator >=(const ArithmeticType&, const ArithmeticType&);
+ArithmeticType operator <<(const ArithmeticType&, const ArithmeticType&);
+ArithmeticType operator >>(const ArithmeticType&, const ArithmeticType&);
+ArithmeticType operator +(const ArithmeticType&, const ArithmeticType&);
+ArithmeticType operator -(const ArithmeticType&, const ArithmeticType&);
+ArithmeticType operator *(const ArithmeticType&, const ArithmeticType&);
+ArithmeticType operator /(const ArithmeticType&, const ArithmeticType&);
+ArithmeticType operator %(const ArithmeticType&, const ArithmeticType&);
+ArithmeticType operator +(const ArithmeticType&);
+ArithmeticType operator -(const ArithmeticType&);
+ArithmeticType operator ~(const ArithmeticType&);
+ArithmeticType operator !(const ArithmeticType&);
 
 }
 
