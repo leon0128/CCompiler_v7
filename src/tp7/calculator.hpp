@@ -1,6 +1,9 @@
 #ifndef TP7_CALCULATOR_HPP
 #define TP7_CALCULATOR_HPP
 
+#include <unordered_map>
+#include <unordered_set>
+
 #include "expression_simbol.hpp"
 #include "arithmetic_type.hpp"
 

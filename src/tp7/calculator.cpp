@@ -1,4 +1,5 @@
 #include <iostream>
+#include <limits>
 
 #include "calculator.hpp"
 
@@ -546,7 +547,203 @@ ArithmeticType Calculator::convertConstant(Constant *constant)
 
 ArithmeticType Calculator::convertIntegerConstant(IntegerConstant *integer)
 {
-    
+    unsigned long long base = 0;
+    bool isContainedUnsigned = false;
+    switch(integer->prefixTag)
+    {
+        case(IntegerConstant::PrefixTag::DECIMAL):
+            base = 10;
+            break;
+        case(IntegerConstant::PrefixTag::OCTAL):
+            base = 8;
+            isContainedUnsigned = true;
+            break;
+        case(IntegerConstant::PrefixTag::HEXADECIMAL):
+            base = 16;
+            isContainedUnsigned = true;
+            break;
+        
+        default:
+            Simbol::unexpectTag("IntegerConstant");
+            return ArithmeticType();
+    }
+
+    unsigned long long value = 0;
+    try
+    {
+        value = std::stoull(integer->str, nullptr, base);
+    }
+    catch(const std::out_of_range &error)
+    {
+        std::cout << "TP7 Calculator error:\n"
+            "    what: IntegerConstant is out of range.\n"
+            "    value: " << integer->string()
+            << std::endl;
+        return ArithmeticType();
+    }
+
+    ArithmeticType retval;
+    switch(integer->suffixTag)
+    {
+        case(IntegerConstant::SuffixTag::NONE):
+            if(value <= std::numeric_limits<int>::max())
+            {
+                retval.tag = ArithmeticType::Tag::S_INT;
+                retval.uni.si = static_cast<int>(value);
+            }
+            else if(value <= std::numeric_limits<unsigned int>::max()
+                && isContainedUnsigned)
+            {
+                retval.tag = ArithmeticType::Tag::U_INT;
+                retval.uni.ui = static_cast<unsigned int>(value);
+            }
+            else if(value <= std::numeric_limits<long int>::max())
+            {
+                retval.tag = ArithmeticType::Tag::S_LONG;
+                retval.uni.sl = static_cast<long int>(value);
+            }
+            else if(value <= std::numeric_limits<unsigned long int>::max()
+                && isContainedUnsigned)
+            {
+                retval.tag = ArithmeticType::Tag::U_LONG;
+                retval.uni.ul = static_cast<unsigned long int>(value);
+            }
+            else if(value <= std::numeric_limits<long long int>::max())
+            {
+                retval.tag = ArithmeticType::Tag::S_LONG_LONG;
+                retval.uni.sll = static_cast<long long int>(value);
+            }
+            else if(value <= std::numeric_limits<unsigned long long int>::max()
+                && isContainedUnsigned)
+            {
+                retval.tag = ArithmeticType::Tag::U_LONG_LONG;
+                retval.uni.ull = static_cast<unsigned long long>(value);
+            }
+            else
+            {
+                std::cout << "TP7 Calculator error:\n"
+                    "    what: IntegerConstant is out of range.\n"
+                    "    value: " << integer->string()
+                    << std::endl;
+                return ArithmeticType();
+            }
+            break;
+        case(IntegerConstant::SuffixTag::UNSIGNED):
+            if(value <= std::numeric_limits<unsigned int>::max())
+            {
+                retval.tag = ArithmeticType::Tag::U_INT;
+                retval.uni.ui = static_cast<unsigned int>(value);
+            }
+            else if(value <= std::numeric_limits<unsigned long int>::max())
+            {
+                retval.tag = ArithmeticType::Tag::U_LONG;
+                retval.uni.ul = static_cast<unsigned long>(value);
+            }
+            else if(value <= std::numeric_limits<unsigned long long int>::max())
+            {
+                retval.tag = ArithmeticType::Tag::U_LONG_LONG;
+                retval.uni.ull = static_cast<unsigned long long>(value);
+            }
+            else
+            {
+                std::cout << "TP7 Calculator error:\n"
+                    "    what: IntegerConstant is out of range.\n"
+                    "    value: " << integer->string()
+                    << std::endl;
+                return ArithmeticType();
+            }
+            break;
+        case(IntegerConstant::SuffixTag::LONG):
+            if(value <= std::numeric_limits<long int>::max())
+            {
+                retval.tag = ArithmeticType::Tag::S_LONG;
+                retval.uni.sl = static_cast<long int>(value);
+            }
+            else if(value <= std::numeric_limits<unsigned long long>::max()
+                && isContainedUnsigned)
+            {
+                retval.tag = ArithmeticType::Tag::U_LONG;
+                retval.uni.ul = static_cast<unsigned long int>(value);
+            }
+            else if(value <= std::numeric_limits<long long int>::max())
+            {
+                retval.tag = ArithmeticType::Tag::S_LONG_LONG;
+                retval.uni.sll = static_cast<long long int>(value);
+            }
+            else if(value <= std::numeric_limits<unsigned long long int>::max()
+                && isContainedUnsigned)
+            {
+                retval.tag = ArithmeticType::Tag::U_LONG_LONG;
+                retval.uni.ull = static_cast<unsigned long long int>(value);
+            }
+            else
+            {
+                std::cout << "TP7 Calculator error:\n"
+                    "    what: IntegerConstant is out of range.\n"
+                    "    value: " << integer->string()
+                    << std::endl;
+                return ArithmeticType();
+            }
+            break;
+        case(IntegerConstant::SuffixTag::UNSIGNED_LONG):
+            if(value <= std::numeric_limits<unsigned long int>::max())
+            {
+                retval.tag = ArithmeticType::Tag::U_LONG;
+                retval.uni.ul = static_cast<unsigned long int>(value);
+            }
+            else if(value <= std::numeric_limits<unsigned long long int>::max())
+            {
+                retval.tag = ArithmeticType::Tag::U_LONG_LONG;
+                retval.uni.ull = static_cast<unsigned long long int>(value);
+            }
+            else
+            {
+                std::cout << "TP7 Calculator error:\n"
+                    "    what: IntegerConstant is out of range.\n"
+                    "    value: " << integer->string()
+                    << std::endl;
+                return ArithmeticType();
+            }
+            break;
+        case(ArithmeticType::Tag::S_LONG_LONG):
+            if(value <= std::numeric_limits<long long int>::max())
+            {
+                retval.tag = ArithmeticType::Tag::S_LONG_LONG;
+                retval.uni.sll = static_cast<long long int>(value);
+            }
+            else if(value <= std::numeric_limits<unsigned long long int>::max()
+                && isContainedUnsigned)
+            {
+                retval.tag = ArithmeticType::Tag::U_LONG_LONG;
+                retval.uni.ull = static_cast<unsigned long long int>(value);
+            }
+            else
+            {
+                std::cout << "TP7 Calculator error:\n"
+                    "    what: IntegerConstant is out of range.\n"
+                    "    value: " << integer->string()
+                    << std::endl;
+                return ArithmeticType();
+            }
+            break;
+        case(ArithmeticType::Tag::U_LONG_LONG):
+            if(value <= std::numeric_limits<unsigned long long int>::max())
+            {
+                retval.tag = ArithmeticType::Tag::U_LONG_LONG;
+                retval.uni.ull = static_cast<unsigned long long int>(value);
+            }
+            else
+            {
+                std::cout << "TP7 Calculator error:\n"
+                    "    what: IntegerConstant is out of range.\n"
+                    "    value: " << integer->string()
+                    << std::endl;
+                return ArithmeticType();
+            }
+            break;
+    }
+
+    return retval;
 }
 
 }
