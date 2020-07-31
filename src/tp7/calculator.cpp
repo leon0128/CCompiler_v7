@@ -571,7 +571,7 @@ ArithmeticType Calculator::convertIntegerConstant(IntegerConstant *integer)
     unsigned long long value = 0;
     try
     {
-        value = std::stoull(integer->str, nullptr, base);
+        value = integer->str.empty() ? 0 : std::stoull(integer->str, nullptr, base);
     }
     catch(const std::out_of_range &error)
     {
@@ -586,34 +586,34 @@ ArithmeticType Calculator::convertIntegerConstant(IntegerConstant *integer)
     switch(integer->suffixTag)
     {
         case(IntegerConstant::SuffixTag::NONE):
-            if(value <= std::numeric_limits<int>::max())
+            if(value <= static_cast<unsigned long long>(std::numeric_limits<int>::max()))
             {
                 retval.tag = ArithmeticType::Tag::S_INT;
                 retval.uni.si = static_cast<int>(value);
             }
-            else if(value <= std::numeric_limits<unsigned int>::max()
+            else if(value <= static_cast<unsigned long long>(std::numeric_limits<unsigned int>::max())
                 && isContainedUnsigned)
             {
                 retval.tag = ArithmeticType::Tag::U_INT;
                 retval.uni.ui = static_cast<unsigned int>(value);
             }
-            else if(value <= std::numeric_limits<long int>::max())
+            else if(value <= static_cast<unsigned long long>(std::numeric_limits<long int>::max()))
             {
                 retval.tag = ArithmeticType::Tag::S_LONG;
                 retval.uni.sl = static_cast<long int>(value);
             }
-            else if(value <= std::numeric_limits<unsigned long int>::max()
+            else if(value <= static_cast<unsigned long long>(std::numeric_limits<unsigned long int>::max())
                 && isContainedUnsigned)
             {
                 retval.tag = ArithmeticType::Tag::U_LONG;
                 retval.uni.ul = static_cast<unsigned long int>(value);
             }
-            else if(value <= std::numeric_limits<long long int>::max())
+            else if(value <= static_cast<unsigned long long>(std::numeric_limits<long long int>::max()))
             {
                 retval.tag = ArithmeticType::Tag::S_LONG_LONG;
                 retval.uni.sll = static_cast<long long int>(value);
             }
-            else if(value <= std::numeric_limits<unsigned long long int>::max()
+            else if(value <= static_cast<unsigned long long>(std::numeric_limits<unsigned long long int>::max())
                 && isContainedUnsigned)
             {
                 retval.tag = ArithmeticType::Tag::U_LONG_LONG;
@@ -629,17 +629,17 @@ ArithmeticType Calculator::convertIntegerConstant(IntegerConstant *integer)
             }
             break;
         case(IntegerConstant::SuffixTag::UNSIGNED):
-            if(value <= std::numeric_limits<unsigned int>::max())
+            if(value <= static_cast<unsigned long long>(std::numeric_limits<unsigned int>::max()))
             {
                 retval.tag = ArithmeticType::Tag::U_INT;
                 retval.uni.ui = static_cast<unsigned int>(value);
             }
-            else if(value <= std::numeric_limits<unsigned long int>::max())
+            else if(value <= static_cast<unsigned long long>(std::numeric_limits<unsigned long int>::max()))
             {
                 retval.tag = ArithmeticType::Tag::U_LONG;
                 retval.uni.ul = static_cast<unsigned long>(value);
             }
-            else if(value <= std::numeric_limits<unsigned long long int>::max())
+            else if(value <= static_cast<unsigned long long>(std::numeric_limits<unsigned long long int>::max()))
             {
                 retval.tag = ArithmeticType::Tag::U_LONG_LONG;
                 retval.uni.ull = static_cast<unsigned long long>(value);
@@ -654,23 +654,23 @@ ArithmeticType Calculator::convertIntegerConstant(IntegerConstant *integer)
             }
             break;
         case(IntegerConstant::SuffixTag::LONG):
-            if(value <= std::numeric_limits<long int>::max())
+            if(value <= static_cast<unsigned long long>(std::numeric_limits<long int>::max()))
             {
                 retval.tag = ArithmeticType::Tag::S_LONG;
                 retval.uni.sl = static_cast<long int>(value);
             }
-            else if(value <= std::numeric_limits<unsigned long long>::max()
+            else if(value <= static_cast<unsigned long long>(std::numeric_limits<unsigned long long>::max())
                 && isContainedUnsigned)
             {
                 retval.tag = ArithmeticType::Tag::U_LONG;
                 retval.uni.ul = static_cast<unsigned long int>(value);
             }
-            else if(value <= std::numeric_limits<long long int>::max())
+            else if(value <= static_cast<unsigned long long>(std::numeric_limits<long long int>::max()))
             {
                 retval.tag = ArithmeticType::Tag::S_LONG_LONG;
                 retval.uni.sll = static_cast<long long int>(value);
             }
-            else if(value <= std::numeric_limits<unsigned long long int>::max()
+            else if(value <= static_cast<unsigned long long>(std::numeric_limits<unsigned long long int>::max())
                 && isContainedUnsigned)
             {
                 retval.tag = ArithmeticType::Tag::U_LONG_LONG;
@@ -686,12 +686,12 @@ ArithmeticType Calculator::convertIntegerConstant(IntegerConstant *integer)
             }
             break;
         case(IntegerConstant::SuffixTag::UNSIGNED_LONG):
-            if(value <= std::numeric_limits<unsigned long int>::max())
+            if(value <= static_cast<unsigned long long>(std::numeric_limits<unsigned long int>::max()))
             {
                 retval.tag = ArithmeticType::Tag::U_LONG;
                 retval.uni.ul = static_cast<unsigned long int>(value);
             }
-            else if(value <= std::numeric_limits<unsigned long long int>::max())
+            else if(value <= static_cast<unsigned long long>(std::numeric_limits<unsigned long long int>::max()))
             {
                 retval.tag = ArithmeticType::Tag::U_LONG_LONG;
                 retval.uni.ull = static_cast<unsigned long long int>(value);
@@ -705,13 +705,13 @@ ArithmeticType Calculator::convertIntegerConstant(IntegerConstant *integer)
                 return ArithmeticType();
             }
             break;
-        case(ArithmeticType::Tag::S_LONG_LONG):
-            if(value <= std::numeric_limits<long long int>::max())
+        case(IntegerConstant::SuffixTag::LONG_LONG):
+            if(value <= static_cast<unsigned long long>(std::numeric_limits<long long int>::max()))
             {
                 retval.tag = ArithmeticType::Tag::S_LONG_LONG;
                 retval.uni.sll = static_cast<long long int>(value);
             }
-            else if(value <= std::numeric_limits<unsigned long long int>::max()
+            else if(value <= static_cast<unsigned long long>(std::numeric_limits<unsigned long long int>::max())
                 && isContainedUnsigned)
             {
                 retval.tag = ArithmeticType::Tag::U_LONG_LONG;
@@ -726,8 +726,8 @@ ArithmeticType Calculator::convertIntegerConstant(IntegerConstant *integer)
                 return ArithmeticType();
             }
             break;
-        case(ArithmeticType::Tag::U_LONG_LONG):
-            if(value <= std::numeric_limits<unsigned long long int>::max())
+        case(IntegerConstant::SuffixTag::UNSIGNED_LONG_LONG):
+            if(value <= static_cast<unsigned long long>(std::numeric_limits<unsigned long long int>::max()))
             {
                 retval.tag = ArithmeticType::Tag::U_LONG_LONG;
                 retval.uni.ull = static_cast<unsigned long long int>(value);
@@ -742,6 +742,86 @@ ArithmeticType Calculator::convertIntegerConstant(IntegerConstant *integer)
             }
             break;
     }
+
+    return retval;
+}
+
+ArithmeticType Calculator::convertFloatingConstant(FloatingConstant *floating)
+{
+    long double value = 0.0l;
+    int radix = 0;
+
+    switch(floating->radixTag)
+    {
+        case(FloatingConstant::RadixTag::DECIMAL):
+            radix = 10;
+            break;
+        case(FloatingConstant::RadixTag::HEXADECIMAL):
+            radix = 16;
+            break;
+        
+        default:
+            Simbol::unexpectTag("FloatingConstant");
+            return ArithmeticType();
+    }
+
+    for(auto &&c : floating->integer)
+        value = value * 10 + std::stoi(std::string(1, c), nullptr, radix);
+    long double dec = 0.0l;
+    for(auto iter = floating->decimal.crbegin(); iter != floating->decimal.crend(); iter++)
+        dec = (dec + std::stoi(std::string(1, *iter), nullptr, radix)) / 10;
+    
+    unsigned long long exp = 0;
+    try
+    {
+        exp = floating->exponent.empty() ? 0 : std::stoull(floating->exponent);
+    }
+    catch(const std::out_of_range &error)
+    {
+        std::cout << "TP7 Calculator error:\n"
+            "    what: exponent part of FloatingConstant is out of range.\n"
+            "    value: " << floating->string()
+            << std::endl;
+        return ArithmeticType();
+    }
+
+    if(floating->exponentTag == FloatingConstant::ExponentTag::NONE
+        || floating->exponentTag == FloatingConstant::ExponentTag::PLUS)
+        for(unsigned long long i = 0; i < exp; i++)
+            value *= 10;
+    else
+        for(unsigned long long i = 0; i < exp; i++)
+            value /= 10;
+
+    ArithmeticType retval;
+    switch(floating->suffixTag)
+    {
+        case(FloatingConstant::SuffixTag::FLOAT):
+            retval.uni.f = static_cast<float>(value);
+            retval.tag = ArithmeticType::Tag::FLOAT;
+            break;
+        case(FloatingConstant::SuffixTag::LONG):
+            retval.uni.ld = value;
+            retval.tag = ArithmeticType::Tag::LONG_DOUBLE;
+            break;
+        case(FloatingConstant::SuffixTag::NONE):
+            retval.uni.d = value;
+            retval.tag = ArithmeticType::Tag::DOUBLE;
+            break;
+    }
+
+    return retval;
+}
+
+ArithmeticType Calculator::convertCharacterConstant(CharacterConstant *character)
+{
+    int value = 0;
+    for(auto &&e : character->str)
+        value = value * std::numeric_limits<char>::max() + e;
+    
+    ArithmeticType retval;
+    retval.tag = ArithmeticType::Tag::S_INT;
+    retval.uni.si = value;
 
     return retval;
 }
