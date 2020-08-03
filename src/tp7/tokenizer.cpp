@@ -515,7 +515,7 @@ CastExpression *Tokenizer::tokCastExpression()
 {
     CastExpression retval;
 
-    if((retval.uni.unary) != nullptr)
+    if((retval.uni.unary = tokUnaryExpression()) != nullptr)
         retval.tag = CastExpression::Tag::UNARY;
 
     if(retval.tag != CastExpression::Tag::NONE)
