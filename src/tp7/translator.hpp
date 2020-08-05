@@ -25,6 +25,7 @@ private:
     bool procExternalDeclaration();
     bool procFunctionDefinition(){return false;}
     bool procDeclaration();
+    bool procDeclarationSpecifiers(std::vector<Token*>&);
     bool procStaticAssertDeclaration();
 
     bool isMatch(std::size_t idx, Punctuator::Tag tag) const noexcept;

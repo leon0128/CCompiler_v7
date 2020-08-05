@@ -1,6 +1,8 @@
 #include <iostream>
 
-#include "type_specifier.hpp"
+
+#include "static_assert_simbol.hpp"
+#include "type.hpp"
 #include "scope.hpp"
 #include "calculator.hpp"
 #include "arithmetic_type.hpp"
@@ -10,7 +12,7 @@
 bool TP7::Translator::execute(const std::vector<Token*> &tvec,
                               std::string &dst)
 {
-    if(!TypeSpecifier::initialize())
+    if(!Type::initialize())
         return false;
 
     Translator translator(tvec);
@@ -147,69 +149,33 @@ bool TP7::Translator::procDeclaration()
 
 bool TP7::Translator::procStaticAssertDeclaration()
 {
-    std::size_t befidx = mIdx;
-
-    if(!isMatch(mIdx, Keyword::Tag::STATIC_ASSERT))
+    StaticAssertDeclaration *staticAssert = Tokenizer::tokenizeStaticAssert(mTvec, mIdx);
+    if(staticAssert == nullptr)
         return false;
     
-    bool isValidSyntax = true;
-    if(isMatch(mIdx + 1, Punctuator::Tag::L_PAREN))
-        mIdx += 2;
-    else
-        isValidSyntax = false;
-
-    ConstantExpression *constantExpression = nullptr;
-    if(isValidSyntax
-        && (constantExpression = Tokenizer::tokenizeConstantExpression(mTvec, mIdx)) == nullptr)
-        isValidSyntax = false;
-    
-    if(isValidSyntax
-        && isMatch(mIdx, Punctuator::Tag::COMMA)
-        && isMatch(mIdx + 1, Token::Tag::STRING_LITERAL)
-        && isMatch(mIdx + 2, Punctuator::Tag::R_PAREN)
-        && isMatch(mIdx + 3, Punctuator::Tag::SEMI_COL))
-        mIdx += 4;
-    else
-        isValidSyntax = false;
-    
-    if(isValidSyntax)
+    ArithmeticType constant = Calculator::calculateConstantExpression(staticAssert->constant);
+    if(constant.isInteger())
     {
-        ArithmeticType res = Calculator::calculateConstantExpression(constantExpression);
-        if(res.isInteger())
+        constant.cast(ArithmeticType::Tag::S_INT);
+        if(constant.uni.si == 0)
         {
-            res.cast(ArithmeticType::Tag::S_INT);
-            if(res.uni.si == 0)
-            {
-                mIsValid = false;
-                std::cout << "_Static_assert:\n"
-                    "    what: " << mTvec[mIdx - 3]->uni.stringLiteral->str
-                    << std::endl;
-            }
-        }
-        else
-        {
+            std::cout << "_Static_assert:\n"
+                "what: " << staticAssert->str->str << "\n"
+                "contents: " << staticAssert->string()
+                << std::endl;
             mIsValid = false;
-            std::cout << "TP7 Translator error:\n"
-                "    what: The constant-expression shall be an integer constant expression.\n"
-                << std::flush;
         }
     }
     else
     {
-        mIsValid = false;
         std::cout << "TP7 Translator error:\n"
-            "    what: Invalid syntax for _Static_assert.\n"
-            "    idx: " << mIdx
+            "    what: _Static_assert shall be an integer-constant-expression.\n"
+            "    contents: " << staticAssert->string()
             << std::endl;
+            mIsValid = false;
     }
 
-    if(mIsValid)
-        return true;
-    else
-    {
-        mIdx = befidx;
-        return false;
-    }
+    return true;
 }
 
 bool TP7::Translator::isMatch(std::size_t idx, Punctuator::Tag tag) const noexcept

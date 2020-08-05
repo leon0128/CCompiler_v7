@@ -1,5 +1,5 @@
-#ifndef TP7_TYPE_SPECIFIER_HPP
-#define TP7_TYPE_SPECIFIER_HPP
+#ifndef TP7_TYPE_HPP
+#define TP7_TYPE_HPP
 
 #include <string>
 #include <vector>
@@ -16,7 +16,7 @@ struct TypeAttribute
     int size, align;
 };
 
-class TypeSpecifier
+class Type
 {
 public:
     enum class Tag;
@@ -45,7 +45,7 @@ private:
     static std::unordered_map<Tag, std::vector<std::vector<Keyword::Tag>>> TYPE_SPECIFIER_MAP;
 };
 
-enum class TypeSpecifier::Tag
+enum class Type::Tag
 {
     NONE,
     VOID,

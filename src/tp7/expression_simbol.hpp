@@ -1,7 +1,7 @@
 #ifndef TP7_EXPRESSION_SIMBOL_HPP
 #define TP7_EXPRESSION_SIMBOL_HPP
 
-#include "type_specifier.hpp"
+#include "type.hpp"
 #include "../simbol.hpp"
 
 namespace TP7
@@ -244,7 +244,7 @@ public:
         UnaryExpression *unary;
         struct SCast
         {
-            TypeSpecifier::Tag tag;
+            Type::Tag tag;
             CastExpression *cast;
         } sCast;
 
@@ -288,8 +288,8 @@ public:
             CastExpression *cast;
         } sUnary;
         UnaryExpression *sizeofUnary;
-        TypeSpecifier::Tag sizeofType;
-        TypeSpecifier::Tag alignofType;
+        Type::Tag sizeofType;
+        Type::Tag alignofType;
 
         constexpr Uni() noexcept:
             postfix(nullptr){}

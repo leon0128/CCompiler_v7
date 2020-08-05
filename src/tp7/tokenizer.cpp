@@ -1,5 +1,6 @@
 #include "../simbol.hpp"
 #include "expression_simbol.hpp"
+#include "static_assert_simbol.hpp"
 #include "tokenizer.hpp"
 
 namespace TP7
@@ -10,6 +11,13 @@ ConstantExpression *Tokenizer::tokenizeConstantExpression(const std::vector<Toke
 {
     Tokenizer tokenizer(vec, idx);
     return tokenizer.tokConstantExpression();
+}
+
+StaticAssertDeclaration *Tokenizer::tokenizeStaticAssert(const std::vector<Token*> &vec
+    , std::size_t &idx)
+{
+    Tokenizer tokenizer(vec, idx);
+    return tokenizer.tokStaticAssert();
 }
 
 Tokenizer::Tokenizer(const std::vector<Token*> &vec,
@@ -625,6 +633,44 @@ PrimaryExpression *Tokenizer::tokPrimaryExpression()
 
     if(retval.tag != PrimaryExpression::Tag::NONE)
         return new PrimaryExpression(retval);
+    else
+    {
+        mIdx = befidx;
+        return nullptr;
+    }
+}
+
+StaticAssertDeclaration *Tokenizer::tokStaticAssert()
+{
+    StaticAssertDeclaration retval;
+    std::size_t befidx = mIdx;
+    bool isValid = false;
+
+    if(Simbol::isMatch(mTvec, mIdx, Keyword::Tag::STATIC_ASSERT)
+        && Simbol::isMatch(mTvec, mIdx + 1, Punctuator::Tag::L_PAREN))
+    {
+        mIdx += 2;
+
+        if((retval.constant = tokConstantExpression()) != nullptr)
+        {
+            if(Simbol::isMatch(mTvec, mIdx, Punctuator::Tag::COMMA))
+            {
+                mIdx++;
+
+                if(Simbol::isMatch(mTvec, mIdx, Token::Tag::STRING_LITERAL)
+                    && Simbol::isMatch(mTvec, mIdx + 1, Punctuator::Tag::R_PAREN)
+                    && Simbol::isMatch(mTvec, mIdx + 2, Punctuator::Tag::SEMI_COL))
+                {
+                    retval.str = mTvec[mIdx]->uni.stringLiteral;
+                    mIdx += 3;
+                    isValid = true;
+                }
+            }
+        }
+    }
+
+    if(isValid)
+        return new StaticAssertDeclaration(retval);
     else
     {
         mIdx = befidx;

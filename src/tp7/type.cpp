@@ -8,16 +8,16 @@
 #include <boost/property_tree/json_parser.hpp>
 
 #include "../global.hpp"
-#include "type_specifier.hpp"
+#include "type.hpp"
 
 namespace TP7
 {
 
-const std::string TypeSpecifier::NAME_KEY = "type";
-const std::string TypeSpecifier::SIZE_KEY = "size";
-const std::string TypeSpecifier::ALIGN_KEY = "align";
+const std::string Type::NAME_KEY = "type";
+const std::string Type::SIZE_KEY = "size";
+const std::string Type::ALIGN_KEY = "align";
 
-const std::unordered_set<Keyword::Tag> TypeSpecifier::TYPE_SPECIFIER_SET
+const std::unordered_set<Keyword::Tag> Type::TYPE_SPECIFIER_SET
     = {Keyword::Tag::VOID,
        Keyword::Tag::CHAR,
        Keyword::Tag::SHORT,
@@ -29,7 +29,7 @@ const std::unordered_set<Keyword::Tag> TypeSpecifier::TYPE_SPECIFIER_SET
        Keyword::Tag::DOUBLE,
        Keyword::Tag::BOOL};
 
-const std::unordered_map<std::string, TypeSpecifier::Tag> TypeSpecifier::TYPE_NAME_MAP
+const std::unordered_map<std::string, Type::Tag> Type::TYPE_NAME_MAP
     = {{"void", Tag::VOID},
        {"char", Tag::CHAR},
        {"s_char", Tag::S_CHAR},
@@ -47,9 +47,9 @@ const std::unordered_map<std::string, TypeSpecifier::Tag> TypeSpecifier::TYPE_NA
        {"long_double", Tag::LONG_DOUBLE},
        {"bool", Tag::BOOL}};
 
-std::unordered_map<TypeSpecifier::Tag, TypeAttribute> TypeSpecifier::TYPE_ATTRIBUTE_MAP;
+std::unordered_map<Type::Tag, TypeAttribute> Type::TYPE_ATTRIBUTE_MAP;
 
-std::unordered_map<TypeSpecifier::Tag, std::vector<std::vector<Keyword::Tag>>> TypeSpecifier::TYPE_SPECIFIER_MAP
+std::unordered_map<Type::Tag, std::vector<std::vector<Keyword::Tag>>> Type::TYPE_SPECIFIER_MAP
     = {{Tag::VOID,
         {{Keyword::Tag::VOID}}},
        {Tag::CHAR,
@@ -98,7 +98,7 @@ std::unordered_map<TypeSpecifier::Tag, std::vector<std::vector<Keyword::Tag>>> T
        {Tag::BOOL,
         {{Keyword::Tag::BOOL}}}};
 
-bool TypeSpecifier::initialize()
+bool Type::initialize()
 {
     if(!read())
         return false;
@@ -107,7 +107,7 @@ bool TypeSpecifier::initialize()
     return true;
 }
 
-TypeSpecifier::Tag TypeSpecifier::convert(std::vector<Keyword::Tag> &src)
+Type::Tag Type::convert(std::vector<Keyword::Tag> &src)
 {
     // sort
     std::sort(src.begin(), src.end());    
@@ -125,12 +125,12 @@ TypeSpecifier::Tag TypeSpecifier::convert(std::vector<Keyword::Tag> &src)
     return Tag::NONE;
 }
 
-bool TypeSpecifier::isTypeSpecifier(Keyword::Tag tag) noexcept
+bool Type::isTypeSpecifier(Keyword::Tag tag) noexcept
 {
     return TYPE_SPECIFIER_SET.find(tag) != TYPE_SPECIFIER_SET.end();
 }
 
-bool TypeSpecifier::isIntegerType(TypeSpecifier::Tag tag) noexcept
+bool Type::isIntegerType(Type::Tag tag) noexcept
 {
     if(tag == Tag::CHAR ||
         tag == Tag::S_CHAR ||
@@ -149,7 +149,7 @@ bool TypeSpecifier::isIntegerType(TypeSpecifier::Tag tag) noexcept
         return false;
 }
 
-bool TypeSpecifier::isFloatingType(TypeSpecifier::Tag tag) noexcept
+bool Type::isFloatingType(Type::Tag tag) noexcept
 {
     if(tag == Tag::FLOAT ||
         tag == Tag::DOUBLE ||
@@ -159,7 +159,7 @@ bool TypeSpecifier::isFloatingType(TypeSpecifier::Tag tag) noexcept
         return false;
 }
 
-void TypeSpecifier::sort()
+void Type::sort()
 {
     for(auto &&p : TYPE_SPECIFIER_MAP)
     {
@@ -168,7 +168,7 @@ void TypeSpecifier::sort()
     }
 }
 
-bool TypeSpecifier::read()
+bool Type::read()
 {
     std::ifstream stream(Global::Config::FILENAME);
     if(!stream.is_open())

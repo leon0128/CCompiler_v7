@@ -7,11 +7,15 @@
 namespace TP7
 {
 
+class StaticAssert;
+
 class Tokenizer
 {
 public:
     static ConstantExpression *tokenizeConstantExpression(const std::vector<Token*>&,
         std::size_t&);
+    static StaticAssertDeclaration *tokenizeStaticAssert(const std::vector<Token*>&
+        , std::size_t&);
 
 private:
     Tokenizer(const std::vector<Token*>&,
@@ -35,6 +39,9 @@ private:
     UnaryExpression *tokUnaryExpression();
     PostfixExpression *tokPostfixExpression();
     PrimaryExpression *tokPrimaryExpression();
+
+    StaticAssertDeclaration *tokStaticAssert();
+
 
     const std::vector<Token*> &mTvec;
     std::size_t &mIdx;
