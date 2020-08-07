@@ -1,3 +1,4 @@
+#include "identifier.hpp"
 #include "scope.hpp"
 
 namespace TP7
@@ -15,6 +16,24 @@ void Scope::destroy()
     Scope *parent = CHILD->mParent;
     delete CHILD;
     CHILD = parent;   
+}
+
+bool Scope::insert(NameSpaceTag nsTag, Identifier *ident, ScopeTag sTag)
+{
+    Scope *scope = CHILD;
+    if(sTag != ScopeTag::NONE)
+    {
+        for(; scope != nullptr; scope = scope->mParent)
+        {
+            if(scope->mTag == sTag)
+                break;
+        }
+    }
+
+    if(scope != nullptr)
+        return scope->mMap.find(nsTag)->second.insert(std::make_pair(ident->identifier, ident)).second;
+    else
+        return false;
 }
 
 }
