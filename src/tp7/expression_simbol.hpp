@@ -1,15 +1,19 @@
 #ifndef TP7_EXPRESSION_SIMBOL_HPP
 #define TP7_EXPRESSION_SIMBOL_HPP
 
-#include "type.hpp"
 #include "../simbol.hpp"
 
 namespace TP7
 {
 
+class TypeName;
+class ArgumentExpressionList;
+class InitializerList;
+
 class Expression;
 class ConstantExpression;
 class AssignmentExpression;
+class AssignmentOperator;
 class ConditionalExpression;
 class LogicalORExpression;
 class LogicalANDExpression;
@@ -23,8 +27,12 @@ class AdditiveExpression;
 class MultiplicativeExpression;
 class CastExpression;
 class UnaryExpression;
+class UnaryOperator;
 class PostfixExpression;
 class PrimaryExpression;
+class GenericSelection;
+class GenericAssocList;
+class GenericAssociation;
 
 class Expression : public BaseSimbol
 {
@@ -65,7 +73,7 @@ public:
         struct SAssignment
         {
             UnaryExpression *unary;
-            Punctuator *punctuator;
+            AssignmentOperator *assignmentOperator;
             AssignmentExpression *assignment;
         } sAssignment;
 
@@ -80,6 +88,34 @@ public:
 
     Tag tag;
     Uni uni;
+
+    std::string string() const override;
+};
+
+class AssignmentOperator : public BaseSimbol
+{
+public:
+    enum class Tag
+    {
+        NONE,
+        ASS,
+        MUL,
+        DIV,
+        REM,
+        PLUS,
+        MINUS,
+        LSFT,
+        RSFT,
+        AND,
+        INOR,
+        EXOR
+    };
+
+    AssignmentOperator()
+        : BaseSimbol()
+        , tag(Tag::NONE){}
+
+    Tag tag;
 
     std::string string() const override;
 };
@@ -244,7 +280,7 @@ public:
         UnaryExpression *unary;
         struct SCast
         {
-            Type::Tag tag;
+            TypeName *typeName;
             CastExpression *cast;
         } sCast;
 
@@ -284,12 +320,12 @@ public:
         UnaryExpression *dec;
         struct SUnary
         {
-            Punctuator *tag;
+            UnaryOperator *unaryOperator;
             CastExpression *cast;
         } sUnary;
         UnaryExpression *sizeofUnary;
-        Type::Tag sizeofType;
-        Type::Tag alignofType;
+        TypeName *sizeofType;
+        TypeName *alignofType;
 
         constexpr Uni() noexcept:
             postfix(nullptr){}
@@ -306,17 +342,74 @@ public:
     std::string string() const override;
 };
 
+class UnaryOperator : public BaseSimbol
+{
+public:
+    enum class Tag
+    {
+        NONE,
+        AND,
+        AST,
+        PLUS,
+        MINUS,
+        TILDE,
+        EXC
+    };
+
+    UnaryOperator()
+        : BaseSimbol()
+        , tag(Tag::NONE){}
+
+    Tag tag;
+
+    std::string string() const override;
+};
+
 class PostfixExpression : public BaseSimbol
 {
 public:
     enum class Tag
     {
         NONE,
-        PRIMARY
+        PRIMARY,
+        POSTFIX_EXPRESSION,
+        POSTFIX_ARGUMENT,
+        POSTFIX_DOT_IDENTIFIER,
+        POSTFIX_ARROW_IDENTIFIER,
+        POSTFIX_INC,
+        POSTFIX_DEC,
+        TYPE_NAME
     };
     union Uni
     {
         PrimaryExpression *primary;
+        struct SPostfixExpression
+        {
+            PostfixExpression *postfix;
+            Expression *expression;
+        } sPostfixExpression;
+        struct SPostfixArgument
+        {
+            PostfixExpression *postfix;
+            ArgumentExpressionList *argument;
+        } sPostfixArgument;
+        struct SPostfixDotIdentifier
+        {
+            PostfixExpression *postfix;
+            Identifier *identifier;
+        } sPostfixDotIdentifier;
+        struct SPostfixArrowIdentifier
+        {
+            PostfixExpression *postfix;
+            Identifier *identifier;
+        } sPostfixArrowIdentifier;
+        PostfixExpression *postfixInc;
+        PostfixExpression *postfixDec;
+        struct STypeName
+        {
+            TypeName *typeName;
+            InitializerList *initializer;
+        } sTypeName;
 
         constexpr Uni() noexcept:
             primary(nullptr){}
@@ -329,6 +422,18 @@ public:
 
     Tag tag;
     Uni uni;
+
+    std::string string() const override;
+};
+
+class ArgumentExpressionList : public BaseSimbol
+{
+public:
+    ArgumentExpressionList()
+        : BaseSimbol()
+        , aevec(){}
+
+    std::vector<AssignmentExpression*> aevec;
 
     std::string string() const override;
 };
@@ -351,7 +456,7 @@ public:
         Constant *constant;
         StringLiteral *stringLiteral;
         Expression *expression;
-        // generic-selection
+        GenericSelection *genericSelection;
     };
 
     PrimaryExpression():
@@ -361,6 +466,46 @@ public:
 
     Tag tag;
     Uni uni;
+
+    std::string string() const override;
+};
+
+class GenericSelection : public BaseSimbol
+{
+public:
+    AssignmentExpression *assignment;
+    GenericAssocList *generic;
+
+    GenericSelection()
+        : BaseSimbol()
+        , assignment(nullptr)
+        , generic(nullptr){}
+    
+    std::string string() const override;
+};
+
+class GenericAssocList : public BaseSimbol
+{
+public:
+    GenericAssocList()
+        : BaseSimbol()
+        , gavec(){}
+
+    std::vector<GenericAssociation*> gavec;
+
+    std::string string() const override;
+};
+
+class GenericAssociation : public BaseSimbol
+{
+public:
+    GenericAssociation()
+        : BaseSimbol()
+        , typeName(nullptr)
+        , assignment(nullptr){}
+
+    TypeName *typeName;
+    AssignmentExpression *assignment;
 
     std::string string() const override;
 };

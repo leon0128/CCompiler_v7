@@ -16,6 +16,7 @@
 #include "tp7/tp7.hpp"
 #include "global.hpp"
 #include "simbol.hpp"
+#include "resource_controller.hpp"
 #include "controller.hpp"
 
 bool Controller::execute(const char *filename)
@@ -55,6 +56,7 @@ bool Controller::execute(const char *filename)
     }
 
     Simbol::destroy();
+    ResourceController::release();
     return true;
 }
 

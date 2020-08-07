@@ -1,3 +1,4 @@
+#include "declaration_simbol.hpp"
 #include "expression_simbol.hpp"
 
 namespace TP7
@@ -32,7 +33,7 @@ std::string AssignmentExpression::string() const
             break;
         case(Tag::ASSIGNMENT):
             retval += uni.sAssignment.unary->string();
-            retval += uni.sAssignment.punctuator->string();
+            retval += uni.sAssignment.assignmentOperator->string();
             retval += uni.sAssignment.assignment->string();
             break;
         
@@ -42,6 +43,54 @@ std::string AssignmentExpression::string() const
     }
 
     return retval;
+}
+
+std::string AssignmentOperator::string() const
+{
+    std::string ret;
+    
+    switch(tag)
+    {
+        case(Tag::ASS):
+            ret.push_back('=');
+            break;
+        case(Tag::MUL):
+            ret += "*=";
+            break;
+        case(Tag::DIV):
+            ret += "/=";
+            break;
+        case(Tag::REM):
+            ret += "%=";
+            break;
+        case(Tag::PLUS):
+            ret += "+=";
+            break;
+        case(Tag::MINUS):
+            ret += "-=";
+            break;
+        case(Tag::LSFT):
+            ret += "<<=";
+            break;
+        case(Tag::RSFT):
+            ret += ">>=";
+            break;
+        case(Tag::AND):
+            ret += "&=";
+            break;
+        case(Tag::INOR):
+            ret += "|=";
+            break;
+        case(Tag::EXOR):
+            ret += "^=";
+            break;
+        
+        default:
+            Simbol::unexpectTag("AssignmentOperator");
+            break;
+    }
+
+    return ret;
 }
 
 std::string ConditionalExpression::string() const
@@ -199,7 +248,9 @@ std::string CastExpression::string() const
             retval += uni.unary->string();
             break;
         case(Tag::CAST):
-            retval += "(type-name)";
+            retval.push_back('(');
+            retval += uni.sCast.typeName->string();
+            retval.push_back(')');
             retval += uni.sCast.cast->string();
             break;
         
@@ -227,7 +278,7 @@ std::string UnaryExpression::string() const
             retval += uni.dec->string();
             break;
         case(Tag::UNARY):
-            retval += uni.sUnary.tag->string();
+            retval += uni.sUnary.unaryOperator->string();
             retval += uni.sUnary.cast->string();
             break;
         case(Tag::SIZEOF_UNARY):
@@ -235,10 +286,14 @@ std::string UnaryExpression::string() const
             retval += uni.sizeofUnary->string();
             break;
         case(Tag::SIZEOF_TYPE):
-            retval += "sizeof(type-name)";
+            retval += "sizeof(";
+            retval += uni.sizeofType->string();
+            retval.push_back(')');
             break;
         case(Tag::ALIGNOF):
-            retval += "_Alignof(type-name)";
+            retval += "_Alignof(";
+            retval += uni.alignofType->string();
+            retval.push_back(')');
             break;
         
         default:
@@ -247,6 +302,39 @@ std::string UnaryExpression::string() const
     }
 
     return retval;
+}
+
+std::string UnaryOperator::string() const
+{
+    std::string ret;
+
+    switch(tag)
+    {
+        case(Tag::AND):
+            ret.push_back('&');
+            break;
+        case(Tag::AST):
+            ret.push_back('*');
+            break;
+        case(Tag::PLUS):
+            ret.push_back('+');
+            break;
+        case(Tag::MINUS):
+            ret.push_back('-');
+            break;
+        case(Tag::TILDE):
+            ret.push_back('~');
+            break;
+        case(Tag::EXC):
+            ret.push_back('!');
+            break;
+        
+        default:
+            Simbol::unexpectTag("UnaryOperator");
+            break;
+    }
+
+    return ret;
 }
 
 std::string PostfixExpression::string() const
@@ -258,6 +346,44 @@ std::string PostfixExpression::string() const
         case(Tag::PRIMARY):
             retval += uni.primary->string();
             break;
+        case(Tag::POSTFIX_EXPRESSION):
+            retval += uni.sPostfixExpression.postfix->string();
+            retval.push_back('[');
+            retval += uni.sPostfixExpression.expression->string();
+            retval.push_back(']');
+            break;
+        case(Tag::POSTFIX_ARGUMENT):
+            retval += uni.sPostfixArgument.postfix->string();
+            retval.push_back('(');
+            if(uni.sPostfixArgument.argument != nullptr)
+                retval += uni.sPostfixArgument.argument->string();
+            retval.push_back(')');
+            break;
+        case(Tag::POSTFIX_DOT_IDENTIFIER):
+            retval += uni.sPostfixDotIdentifier.postfix->string();
+            retval.push_back('.');
+            retval += uni.sPostfixDotIdentifier.identifier->string();
+            break;
+        case(Tag::POSTFIX_ARROW_IDENTIFIER):
+            retval += uni.sPostfixArrowIdentifier.postfix->string();
+            retval += "->";
+            retval += uni.sPostfixArrowIdentifier.identifier->string();
+            break;
+        case(Tag::POSTFIX_INC):
+            retval += uni.postfixInc->string();
+            retval += "++";
+            break;
+        case(Tag::POSTFIX_DEC):
+            retval += uni.postfixDec->string();
+            retval += "--";
+            break;
+        case(Tag::TYPE_NAME):
+            retval.push_back('(');
+            retval += uni.sTypeName.typeName->string();
+            retval += "){";
+            retval += uni.sTypeName.initializer->string();
+            retval.push_back('}');
+            break;
         
         default:
             Simbol::unexpectTag("PostfixExpression");
@@ -265,6 +391,20 @@ std::string PostfixExpression::string() const
     }
 
     return retval;
+}
+
+std::string ArgumentExpressionList::string() const
+{
+    std::string ret;
+
+    for(auto &&ae : aevec)
+    {
+        ret += ae->string();
+        ret.push_back(',');
+    }
+
+    ret.pop_back();
+    return ret;
 }
 
 std::string PrimaryExpression::string() const
@@ -287,13 +427,56 @@ std::string PrimaryExpression::string() const
             retval += uni.expression->string();
             retval.push_back(')');
             break;
-        
+        case(Tag::GENERIC_SELECTION):
+            retval += uni.genericSelection->string();
+            break;
+
         default:
             Simbol::unexpectTag("PrimaryExpression");
             break;
     }
 
     return retval;
+}
+
+std::string GenericSelection::string() const
+{
+    std::string ret("_Generic(");
+    ret += assignment->string();
+    ret.push_back(',');
+    ret += generic->string();
+    ret.push_back(')');
+    
+    return ret;
+}
+
+std::string GenericAssocList::string() const
+{
+    std::string ret;
+
+    for(auto &&ga : gavec)
+    {
+        ret += ga->string();
+        ret.push_back(',');
+    }
+
+    ret.pop_back();
+    return ret;
+}
+
+std::string GenericAssociation::string() const
+{
+    std::string ret;
+
+    if(typeName != nullptr)
+        ret += typeName->string();
+    else
+        ret += "default";
+    
+    ret.push_back(':');
+    ret += assignment->string();
+
+    return ret;
 }
 
 }

@@ -3,6 +3,18 @@
 namespace TP7
 {
 
-    std::unordered_set<std::string> Scope::IDENTIFIER_SET;
+Scope *Scope::CHILD = nullptr;
+
+void Scope::create(ScopeTag tag)
+{
+    CHILD = new Scope(CHILD, tag);
+}
+
+void Scope::destroy()
+{
+    Scope *parent = CHILD->mParent;
+    delete CHILD;
+    CHILD = parent;   
+}
 
 }
