@@ -2,7 +2,10 @@
 #define TP7_TOKENIZER_HPP
 
 #include <vector>
+
 #include "expression_simbol.hpp"
+#include "static_assert_simbol.hpp"
+#include "declaration_simbol.hpp" 
 
 namespace TP7
 {

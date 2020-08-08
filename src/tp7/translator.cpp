@@ -12,9 +12,6 @@
 bool TP7::Translator::execute(const std::vector<Token*> &tvec,
                               std::string &dst)
 {
-    if(!Type::initialize())
-        return false;
-
     Translator translator(tvec);
     translator.translate();
 
