@@ -305,7 +305,7 @@ public:
     Tag tag;
 
     StructOrUnion *structOrUnion;
-    Identifier *identifier;
+    ::Identifier *identifier;
     StructDeclarationList *structDeclarationList;
     
     std::string string() const override;
@@ -436,7 +436,7 @@ public:
         : BaseSimbol()
         , identifier(nullptr){}
 
-    Identifier *identifier;
+    ::Identifier *identifier;
 
     std::string string() const override;
 };
@@ -449,7 +449,7 @@ public:
         , identifier(nullptr)
         , enumeratorList(nullptr){}
 
-    Identifier *identifier;
+    ::Identifier *identifier;
     EnumeratorList *enumeratorList;
 
     std::string string() const override;
@@ -488,7 +488,7 @@ public:
         : BaseSimbol()
         , identifier(nullptr){}
 
-    Identifier *identifier;
+    ::Identifier *identifier;
 
     std::string string() const override;
 };
@@ -573,7 +573,7 @@ public:
     union Uni
     {
         ConstantExpression *constant;
-        Identifier *identifier;
+        ::Identifier *identifier;
     };
 
     Designator()
@@ -609,63 +609,55 @@ public:
         NONE,
         IDENTIFIER,
         DECLARATOR,
-        DIRECT_QUALIFIER_ASSIGNMENT,
-        DIRECT_STATIC_QUALIFIER_ASSIGNMENT,
-        DIRECT_QUALIFIER_STATIC_ASSIGNMENT,
-        DIRECT_QUALIFIER,
-        DIRECT_PARAMETER,
-        DIRECT_IDENTIFIER
+        QUALIFIER_ASSIGNMENT,
+        STATIC_QUALIFIER_ASSIGNMENT,
+        QUALIFIER_STATIC_ASSIGNMENT,
+        QUALIFIER,
+        PARAMETER,
+        IDENTIFIER_LIST
     };
     union Uni
     {
-        Identifier *identifier;
+        ::Identifier *identifier;
         Declarator *declarator;
-        struct SDirectQualifierAssignment
+        struct SQualifierAssignment
         {
-            DirectDeclarator *direct;
             TypeQualifierList *qualifier;
             AssignmentExpression *assignment;
-        } sDirectQualifierAssignment;
-        struct SDirectStaticQualifierAssignment
+        } sQualifierAssignment;
+        struct SStaticQualifierAssignment
         {
-            DirectDeclarator *direct;
             TypeQualifierList *qualifier;
             AssignmentExpression *assignment;
-        } sDirectStaticQualifierAssignment;
-        struct SDirectQualifierStaticAssignment
+        } sStaticQualifierAssignment;
+        struct SQualifierStaticAssignment
         {
-            DirectDeclarator *direct;
             TypeQualifierList *qualifier;
             AssignmentExpression *assginment;
-        } sDirectQualifierStaticAssignment;
-        struct SDirectQualifier
-        {
-            DirectDeclarator *direct;
-            TypeQualifierList *qualifier;
-        } sDirectQualifier;
-        struct SDirectParameter
-        {
-            DirectDeclarator *direct;
-            ParameterTypeList *parameter;
-        } sDirectParameter;
-        struct SDirectIdentifier
-        {
-            DirectDeclarator *direct;
-            IdentifierList *identifier;
-        } sDirectIdentifier;
+        } sQualifierStaticAssignment;
+        TypeQualifierList *qualifier;
+        ParameterTypeList *parameter;
+        IdentifierList *identifierList;
 
         constexpr Uni() noexcept
             : identifier(nullptr){}
     };
+    struct SDirectDeclarator
+    {
+        constexpr SDirectDeclarator() noexcept
+            : tag(Tag::NONE)
+            , uni(){}
+
+        Tag tag;
+        Uni uni;
+    };
 
     DirectDeclarator()
         : BaseSimbol()
-        , tag(Tag::NONE)
-        , uni(){}
+        , sddvec(){}
 
-    Tag tag;
-    Uni uni;
-
+    std::vector<SDirectDeclarator> sddvec;
+    
     std::string string() const override;
 };
 
@@ -791,46 +783,50 @@ public:
     {
         NONE,
         ABSTRACT,
-        DIRECT_QUALIFIER_ASSIGNMENT,
-        DIRECT_STATIC_QUALIFIER_ASSIGNMENT,
-        DIRECT_QUALIFIER_STATIC_ASSIGNMENT,
-        DIRECT,
-        DIRECT_PARAMETER
+        QUALIFIER_ASSIGNMENT,
+        STATIC_QUALIFIER_ASSIGNMENT,
+        QUALIFIER_STATIC_ASSIGNMENT,
+        ASTERISK,
+        PARAMETER
     };
     union Uni
     {
         AbstractDeclarator *abstract;
-        struct SDirectQualifierAssignment
+        struct SQualifierAssignment
         {
-            DirectAbstractDeclarator *direct;
             TypeQualifierList *qualifier;
             AssignmentExpression *assignment;
-        } sDirectQualifierAssignment;
-        struct SDirectStaticQualifierAssignment
+        } sQualifierAssignment;
+        struct SStaticQualifierAssignment
         {
-            DirectAbstractDeclarator *direct;
             TypeQualifierList *qualifier;
             AssignmentExpression *assignment;
-        } sDirectStaticQualifierAssignment;
-        struct SDirectQualifierStaticAssignment
+        } sStaticQualifierAssignment;
+        struct SQualifierStaticAssignment
         {
-            DirectAbstractDeclarator *direct;
             TypeQualifierList *qualifier;
             AssignmentExpression *assignment;
-        } sDirectQualifierStaticAssignment;
-        DirectAbstractDeclarator *direct;
-        struct SDirectParameter
-        {
-            DirectAbstractDeclarator *direct;
-            ParameterTypeList *parameter;
-        } sDirectParameter;
+        } sQualifierStaticAssignment;
+        ParameterTypeList *parameter;
 
         constexpr Uni() noexcept
             : abstract(nullptr){}
     };
+    struct SDirectAbstractDeclarator
+    {
+        constexpr SDirectAbstractDeclarator() noexcept
+            : tag(Tag::NONE)
+            , uni(){}
 
-    Tag tag;
-    Uni uni;
+        Tag tag;
+        Uni uni;
+    };
+
+    DirectAbstractDeclarator()
+        : BaseSimbol()
+        , sdadvec(){}
+
+    std::vector<SDirectAbstractDeclarator> sdadvec;
 
     std::string string() const override;
 };

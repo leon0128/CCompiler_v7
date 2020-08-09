@@ -562,71 +562,68 @@ std::string DirectDeclarator::string() const
 {
     std::string ret;
 
-    switch(tag)
+    for(auto &&sdd : sddvec)
     {
-        case(Tag::IDENTIFIER):
-            ret += uni.identifier->string();
-            break;
-        case(Tag::DECLARATOR):
-            ret.push_back('(');
-            ret += uni.declarator->string();
-            ret.push_back(')');
-            break;
-        case(Tag::DIRECT_QUALIFIER_ASSIGNMENT):
-            ret += uni.sDirectQualifierAssignment.direct->string();
-            ret.push_back('[');
-            if(uni.sDirectQualifierAssignment.qualifier != nullptr)
-            {
-                ret += uni.sDirectQualifierAssignment.qualifier->string();
-                ret.push_back(' ');
-            }
-            if(uni.sDirectQualifierAssignment.assignment != nullptr)
-                ret += uni.sDirectQualifierAssignment.assignment->string();
-            ret.push_back(']');
-            break;
-        case(Tag::DIRECT_STATIC_QUALIFIER_ASSIGNMENT):
-            ret += uni.sDirectStaticQualifierAssignment.direct->string();
-            ret += "[static ";
-            if(uni.sDirectStaticQualifierAssignment.qualifier != nullptr)
-            {
-                ret += uni.sDirectStaticQualifierAssignment.qualifier->string();
-                ret.push_back(' ');
-            }
-            ret += uni.sDirectStaticQualifierAssignment.assignment->string();
-            ret.push_back(']');
-            break;
-        case(Tag::DIRECT_QUALIFIER_STATIC_ASSIGNMENT):
-            ret += uni.sDirectQualifierStaticAssignment.direct->string();
-            ret.push_back('[');
-            ret += uni.sDirectQualifierStaticAssignment.qualifier->string();
-            ret += " static ";
-            ret += uni.sDirectQualifierStaticAssignment.assginment->string();
-            ret.push_back(']');
-            break;
-        case(Tag::DIRECT_QUALIFIER):
-            ret += uni.sDirectQualifier.direct->string();
-            ret.push_back('[');
-            if(uni.sDirectQualifier.qualifier != nullptr)
-                ret += uni.sDirectQualifier.qualifier->string();
-            ret += "*]";
-            break;
-        case(Tag::DIRECT_PARAMETER):
-            ret += uni.sDirectParameter.direct->string();
-            ret.push_back('(');
-            ret += uni.sDirectParameter.parameter->string();
-            ret.push_back(')');
-            break;
-        case(Tag::DIRECT_IDENTIFIER):
-            ret += uni.sDirectIdentifier.direct->string();
-            ret.push_back('(');
-            if(uni.sDirectIdentifier.identifier != nullptr)
-                ret += uni.sDirectIdentifier.identifier->string();
-            ret.push_back(')');
-            break;
-        
-        default:
-            Simbol::unexpectTag("DirectDeclarator");
-            break;
+        switch(sdd.tag)
+        {
+            case(Tag::IDENTIFIER):
+                ret += sdd.uni.identifier->string();
+                break;
+            case(Tag::DECLARATOR):
+                ret.push_back('(');
+                ret += sdd.uni.declarator->string();
+                ret.push_back(')');
+                break;
+            case(Tag::QUALIFIER_ASSIGNMENT):
+                ret.push_back('[');
+                if(sdd.uni.sQualifierAssignment.qualifier != nullptr)
+                {
+                    ret += sdd.uni.sQualifierAssignment.qualifier->string();
+                    ret.push_back(' ');
+                }
+                if(sdd.uni.sQualifierAssignment.assignment != nullptr)
+                    ret += sdd.uni.sQualifierAssignment.assignment->string();
+                ret.push_back(']');
+                break;
+            case(Tag::STATIC_QUALIFIER_ASSIGNMENT):
+                ret += "[static ";
+                if(sdd.uni.sStaticQualifierAssignment.qualifier != nullptr)
+                {
+                    ret += sdd.uni.sStaticQualifierAssignment.qualifier->string();
+                    ret.push_back(' ');
+                }
+                ret += sdd.uni.sStaticQualifierAssignment.assignment->string();
+                ret.push_back(']');
+                break;
+            case(Tag::QUALIFIER_STATIC_ASSIGNMENT):
+                ret.push_back('[');
+                ret += sdd.uni.sQualifierStaticAssignment.qualifier->string();
+                ret += " static ";
+                ret += sdd.uni.sQualifierStaticAssignment.assginment->string();
+                ret.push_back(']');
+                break;
+            case(Tag::QUALIFIER):
+                ret.push_back('[');
+                if(sdd.uni.qualifier != nullptr)
+                    ret += sdd.uni.qualifier->string();
+                ret += "*]";
+                break;
+            case(Tag::PARAMETER):
+                ret.push_back('(');
+                ret += sdd.uni.parameter->string();
+                ret.push_back(')');
+                break;
+            case(Tag::IDENTIFIER_LIST):
+                ret.push_back('(');
+                if(sdd.uni.identifier != nullptr)
+                    ret += sdd.uni.identifierList->string();
+                ret.push_back(')');
+                break;
+            
+            default:
+                Simbol::unexpectTag("DirectDeclarator");
+                break;
+        }
     }
 
     return ret;
@@ -746,61 +743,54 @@ std::string DirectAbstractDeclarator::string() const
 {
     std::string ret;
 
-    switch(tag)
+    for(auto &&sdad : sdadvec)
     {
-        case(Tag::ABSTRACT):
-            ret.push_back('(');
-            ret += uni.abstract->string();
-            ret.push_back(')');
-            break;
-        case(Tag::DIRECT_QUALIFIER_ASSIGNMENT):
-            if(uni.sDirectQualifierAssignment.direct != nullptr)
-                ret += uni.sDirectQualifierAssignment.direct->string();
-            ret.push_back('[');
-            if(uni.sDirectQualifierAssignment.qualifier != nullptr)
-                ret += uni.sDirectQualifierAssignment.qualifier->string();
-            if(uni.sDirectQualifierAssignment.assignment != nullptr)
-                ret += uni.sDirectQualifierAssignment.assignment->string();
-            ret.push_back(']');
-            break;
-        case(Tag::DIRECT_STATIC_QUALIFIER_ASSIGNMENT):
-            if(uni.sDirectStaticQualifierAssignment.direct != nullptr)
-                ret += uni.sDirectStaticQualifierAssignment.direct->string();
-            ret += "[static ";
-            if(uni.sDirectStaticQualifierAssignment.qualifier != nullptr)
-            {
-                ret += uni.sDirectStaticQualifierAssignment.qualifier->string();
-                ret.push_back(' ');
-            }
-            ret += uni.sDirectStaticQualifierAssignment.assignment->string();
-            ret.push_back(']');
-            break;
-        case(Tag::DIRECT_QUALIFIER_STATIC_ASSIGNMENT):
-            if(uni.sDirectQualifierStaticAssignment.direct != nullptr)
-                ret += uni.sDirectQualifierStaticAssignment.direct->string();
-            ret.push_back('[');
-            ret += uni.sDirectQualifierStaticAssignment.qualifier->string();
-            ret += " static ";
-            ret += uni.sDirectQualifierStaticAssignment.assignment->string();
-            ret.push_back(']');
-            break;
-        case(Tag::DIRECT):
-            if(uni.direct != nullptr)
-                ret += uni.direct->string();
-            ret += "[*]";
-            break;
-        case(Tag::DIRECT_PARAMETER):
-            if(uni.sDirectParameter.direct != nullptr)
-                ret += uni.sDirectParameter.direct->string();
-            ret.push_back('(');
-            if(uni.sDirectParameter.parameter != nullptr)
-                ret += uni.sDirectParameter.parameter->string();
-            ret.push_back(')');
-            break;
-        
-        default:
-            Simbol::unexpectTag("DirectAbstractDeclarator");
-            break;
+        switch(sdad.tag)
+        {
+            case(Tag::ABSTRACT):
+                ret.push_back('(');
+                ret += sdad.uni.abstract->string();
+                ret.push_back(')');
+                break;
+            case(Tag::QUALIFIER_ASSIGNMENT):
+                ret.push_back('[');
+                if(sdad.uni.sQualifierAssignment.qualifier != nullptr)
+                    ret += sdad.uni.sQualifierAssignment.qualifier->string();
+                if(sdad.uni.sQualifierAssignment.assignment != nullptr)
+                    ret += sdad.uni.sQualifierAssignment.assignment->string();
+                ret.push_back(']');
+                break;
+            case(Tag::STATIC_QUALIFIER_ASSIGNMENT):
+                ret += "[static ";
+                if(sdad.uni.sStaticQualifierAssignment.qualifier != nullptr)
+                {
+                    ret += sdad.uni.sStaticQualifierAssignment.qualifier->string();
+                    ret.push_back(' ');
+                }
+                ret += sdad.uni.sStaticQualifierAssignment.assignment->string();
+                ret.push_back(']');
+                break;
+            case(Tag::QUALIFIER_STATIC_ASSIGNMENT):
+                ret.push_back('[');
+                ret += sdad.uni.sQualifierStaticAssignment.qualifier->string();
+                ret += " static ";
+                ret += sdad.uni.sQualifierStaticAssignment.assignment->string();
+                ret.push_back(']');
+                break;
+            case(Tag::ASTERISK):
+                ret += "[*]";
+                break;
+            case(Tag::PARAMETER):
+                ret.push_back('(');
+                if(sdad.uni.parameter != nullptr)
+                    ret += sdad.uni.parameter->string();
+                ret.push_back(')');
+                break;
+            
+            default:
+                Simbol::unexpectTag("DirectAbstractDeclarator");
+                break;
+        }
     }
 
     return ret;

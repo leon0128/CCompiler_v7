@@ -399,7 +399,7 @@ public:
         BL_PAREN, // {
         BR_PAREN, // }
         DOT, // .
-        ARROR, // ->
+        ARROW, // ->
         INC, // ++
         DEC, // --
         AMP, // &
@@ -806,11 +806,12 @@ namespace Simbol
         std::size_t idx,
         String &&str)
     {
-        return idx < vec.size()
-            ? vec[idx]->tag == Token::Tag::IDENTIFIER
-                ? vec[idx]->uni.identifier->str == std::forward(str)
-                    : false
-                        : false;
+        if(idx < vec.size()
+            && vec[idx]->tag == Token::Tag::IDENTIFIER
+            && vec[idx]->uni.identifier->str == std::forward<String>(str))
+            return true;
+        else
+            return false;
     }
 }
 

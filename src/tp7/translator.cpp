@@ -1,6 +1,5 @@
 #include <iostream>
 
-
 #include "static_assert_simbol.hpp"
 #include "type.hpp"
 #include "scope.hpp"
@@ -67,110 +66,12 @@ bool TP7::Translator::procExternalDeclaration()
 
 bool TP7::Translator::procDeclaration()
 {
-    auto befidx = mIdx;
-
-    if(procStaticAssertDeclaration())
-        return true;
-    else
-        return false;
-
-    // // declaration-specifiers
-    // std::vector<Keyword::Tag> typeSpecifierVec;
-    // while(isMatch(mIdx, Token::Tag::KEYWORD)
-    //     ? TypeSpecifier::isTypeSpecifier(mTvec[mIdx]->uni.keyword->tag)
-    //         : false)
-    //     typeSpecifierVec.push_back(mTvec[mIdx++]->uni.keyword->tag);
-
-    // // get TypeSpecifier::Tag
-    // TypeSpecifier::Tag typeSpecifierTag = TypeSpecifier::convert(typeSpecifierVec);
-    // if(typeSpecifierTag == TypeSpecifier::Tag::NONE)
-    // {
-    //     mIsValid = false;
-    //     std::cout << "TP7 Translator error:\n"
-    //                  "    what: failed to convert to type from type-specifier.\n"
-    //                  "    idx: " << mIdx
-    //               << std::endl;
-    //     mIdx = befidx;
-    //     return false;
-    // }
-
-    // // declarator
-    // Identifier *identifier
-    //     = isMatch(mIdx, Token::Tag::IDENTIFIER)
-    //         ? mTvec[mIdx++]->uni.identifier
-    //             : nullptr;
-    // if(identifier == nullptr)
-    // {
-    //     mIsValid = false;
-    //     std::cout << "TP7 Translator error:\n"
-    //                  "    what: failed to get identifier.\n"
-    //                  "    idx: " << mIdx
-    //               << std::endl;
-    //     mIdx = befidx;
-    //     return false;
-    // }
-    // if(!Scope::emplace(identifier->str))
-    // {
-    //     mIsValid = false;
-    //     std::cout << "TP7 Translator error:\n"
-    //         "    what: identifier is redefined.\n"
-    //         "    ident: " << identifier->str
-    //         << std::endl;
-    //     mIdx = befidx;
-    //     return false;
-    // }
-
-    // // semicolon
-    // if(isMatch(mIdx, Punctuator::Tag::SEMI_COL))
-    //     mIdx++;
-    // else
-    // {
-    //     mIsValid = false;
-    //     std::cout << "TP7 Translator error:\n"
-    //         "    what: semicolon not exists.\n"
-    //         "    idx: " << mIdx
-    //         << std::endl;
-    //     mIdx = befidx;
-    //     return false;
-    // }
-
-    // // write
-    // mSStr << "    .comm " 
-    //     << identifier->str << ", "
-    //     << TypeSpecifier::getAttributeMap().at(typeSpecifierTag).size << ", "
-    //     << TypeSpecifier::getAttributeMap().at(typeSpecifierTag).align
-    //     << std::endl;
-
     return true;
 }
 
 bool TP7::Translator::procStaticAssertDeclaration()
 {
-    StaticAssertDeclaration *staticAssert = Tokenizer::tokenizeStaticAssert(mTvec, mIdx);
-    if(staticAssert == nullptr)
-        return false;
-    
-    ArithmeticType constant = Calculator::calculateConstantExpression(staticAssert->constant);
-    if(constant.isInteger())
-    {
-        constant.cast(ArithmeticType::Tag::S_INT);
-        if(constant.uni.si == 0)
-        {
-            std::cout << "_Static_assert:\n"
-                "what: " << staticAssert->str->str << "\n"
-                "contents: " << staticAssert->string()
-                << std::endl;
-            mIsValid = false;
-        }
-    }
-    else
-    {
-        std::cout << "TP7 Translator error:\n"
-            "    what: _Static_assert shall be an integer-constant-expression.\n"
-            "    contents: " << staticAssert->string()
-            << std::endl;
-            mIsValid = false;
-    }
+
 
     return true;
 }

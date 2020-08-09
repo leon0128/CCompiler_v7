@@ -199,7 +199,7 @@ public:
 
         struct SIdentifier
         {
-            Identifier *identifier;
+            ::Identifier *identifier;
             Statement *statement;
         } sIdentifier;
         struct SCase
@@ -340,7 +340,7 @@ public:
     };
     union Uni
     {
-        Identifier *gotoIdentifier;
+        ::Identifier *gotoIdentifier;
         Expression *returnExpression;
     };
 

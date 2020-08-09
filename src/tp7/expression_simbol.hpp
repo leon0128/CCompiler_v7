@@ -199,27 +199,57 @@ public:
 class EqualityExpression : public BaseSimbol
 {
 public:
-    std::vector<RelationalExpression*> relvec;
-    std::vector<Punctuator*> tagvec;
+    enum class Tag
+    {
+        NONE
+        , EQUAL
+        , NOT_EQUAL
+    };
+    struct SEqualityExpression
+    {
+        constexpr SEqualityExpression() noexcept
+            : re(nullptr)
+            , tag(Tag::NONE){}
+
+        RelationalExpression *re;
+        Tag tag;
+    };
 
     EqualityExpression():
         BaseSimbol(),
-        relvec(),
-        tagvec(){}
+        seevec(){}
     
+    std::vector<SEqualityExpression> seevec;
+
     std::string string() const override;
 };
 
 class RelationalExpression : public BaseSimbol
 {
 public:
-    std::vector<ShiftExpression*> sftvec;
-    std::vector<Punctuator*> tagvec;
+    enum class Tag
+    {
+        NONE
+        , LESS
+        , GREATER
+        , LESS_EQ
+        , GREATER_EQ
+    };
+    struct SRelationalExpression
+    {
+        constexpr SRelationalExpression() noexcept
+            : se(nullptr)
+            , tag(Tag::NONE){}
+
+        ShiftExpression *se;
+        Tag tag;
+    };
 
     RelationalExpression():
         BaseSimbol(),
-        sftvec(),
-        tagvec(){}
+        srevec(){}
+
+    std::vector<SRelationalExpression> srevec;
 
     std::string string() const override;
 };
@@ -227,13 +257,26 @@ public:
 class ShiftExpression : public BaseSimbol
 {
 public:
-    std::vector<AdditiveExpression*> addvec;
-    std::vector<Punctuator*> tagvec;
+    enum class Tag
+    {
+        NONE
+        , L_SHIFT
+        , R_SHIFT
+    };
+    struct SShiftExpression
+    {
+        constexpr SShiftExpression() noexcept
+            : tag(Tag::NONE)
+            , ae(nullptr){}
+
+        Tag tag;
+        AdditiveExpression *ae;
+    };
 
     ShiftExpression():
         BaseSimbol(),
-        addvec(),
-        tagvec(){}
+        ssevec(){}
+    std::vector<SShiftExpression> ssevec;
 
     std::string string() const override;
 };
@@ -241,13 +284,27 @@ public:
 class AdditiveExpression : public BaseSimbol
 {
 public:
-    std::vector<MultiplicativeExpression*> mulvec;
-    std::vector<Punctuator*> tagvec;
+    enum class Tag
+    {
+        NONE
+        , ADD
+        , SUB
+    };
+    struct SAdditiveExpression
+    {
+        constexpr SAdditiveExpression() noexcept
+            : tag(Tag::NONE)
+            , me(nullptr){}
+
+        Tag tag;
+        MultiplicativeExpression *me;
+    };
 
     AdditiveExpression():
         BaseSimbol(),
-        mulvec(),
-        tagvec(){}
+        saevec(){}
+
+    std::vector<SAdditiveExpression> saevec;
 
     std::string string() const override;
 };
@@ -255,14 +312,29 @@ public:
 class MultiplicativeExpression : public BaseSimbol
 {
 public:
-    std::vector<CastExpression*> castvec;
-    std::vector<Punctuator*> tagvec;
+    enum class Tag
+    {
+        NONE
+        , MUL
+        , DIV
+        , REM
+    };
+    struct SMultiplicativeExpression
+    {
+        constexpr SMultiplicativeExpression() noexcept
+            : tag(Tag::NONE)
+            , ce(nullptr){}
+
+        Tag tag;
+        CastExpression *ce;
+    };
 
     MultiplicativeExpression():
         BaseSimbol(),
-        castvec(),
-        tagvec(){}
+        smevec(){}
     
+    std::vector<SMultiplicativeExpression> smevec;
+
     std::string string() const override;
 };
 
@@ -372,39 +444,21 @@ public:
     {
         NONE,
         PRIMARY,
-        POSTFIX_EXPRESSION,
-        POSTFIX_ARGUMENT,
-        POSTFIX_DOT_IDENTIFIER,
-        POSTFIX_ARROW_IDENTIFIER,
-        POSTFIX_INC,
-        POSTFIX_DEC,
+        EXPRESSION,
+        ARGUMENT,
+        DOT_IDENTIFIER,
+        ARROW_IDENTIFIER,
+        INC,
+        DEC,
         TYPE_NAME
     };
     union Uni
     {
         PrimaryExpression *primary;
-        struct SPostfixExpression
-        {
-            PostfixExpression *postfix;
-            Expression *expression;
-        } sPostfixExpression;
-        struct SPostfixArgument
-        {
-            PostfixExpression *postfix;
-            ArgumentExpressionList *argument;
-        } sPostfixArgument;
-        struct SPostfixDotIdentifier
-        {
-            PostfixExpression *postfix;
-            Identifier *identifier;
-        } sPostfixDotIdentifier;
-        struct SPostfixArrowIdentifier
-        {
-            PostfixExpression *postfix;
-            Identifier *identifier;
-        } sPostfixArrowIdentifier;
-        PostfixExpression *postfixInc;
-        PostfixExpression *postfixDec;
+        Expression *expression;
+        ArgumentExpressionList *argument;
+        ::Identifier *dotIdentifier;
+        ::Identifier *arrowIdentifier;
         struct STypeName
         {
             TypeName *typeName;
@@ -414,14 +468,17 @@ public:
         constexpr Uni() noexcept:
             primary(nullptr){}
     };
+    struct SPostfixExpression
+    {
+        Tag tag;
+        Uni uni;
+    };
 
     PostfixExpression():
         BaseSimbol(),
-        tag(Tag::NONE),
-        uni(){}
+        spevec(){}
 
-    Tag tag;
-    Uni uni;
+    std::vector<SPostfixExpression> spevec;
 
     std::string string() const override;
 };
@@ -452,7 +509,7 @@ public:
     };
     union Uni
     {
-        Identifier *identifier;
+        ::Identifier *identifier;
         Constant *constant;
         StringLiteral *stringLiteral;
         Expression *expression;

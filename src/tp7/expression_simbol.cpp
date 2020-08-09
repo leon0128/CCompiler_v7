@@ -175,67 +175,141 @@ std::string ANDExpression::string() const
 
 std::string EqualityExpression::string() const
 {
-    std::string retval = relvec.front()->string();
+    std::string ret = seevec.front().re->string();
 
-    for(std::size_t i = 1; i < relvec.size(); i++)
+    for(std::size_t i = 1; i < seevec.size(); i++)
     {
-        retval += tagvec[i - 1]->string();
-        retval += relvec[i]->string();
+        switch(seevec[i].tag)
+        {
+            case(Tag::EQUAL):
+                ret += "==";
+                break;
+            case(Tag::NOT_EQUAL):
+                ret += "!=";
+                break;
+            
+            default:
+                Simbol::unexpectTag("EqualityExpression");
+                break;
+        }
+
+        ret += seevec[i].re->string();
     }
 
-    return retval;
+    return ret;
 }
 
 std::string RelationalExpression::string() const
 {
-    std::string retval = sftvec.front()->string();
+    std::string ret = srevec.front().se->string();
 
-    for(std::size_t i = 1; i < sftvec.size(); i++)
+    for(std::size_t i = 1; i < srevec.size(); i++)
     {
-        retval += tagvec[i - 1]->string();
-        retval += sftvec[i]->string();
+        switch(srevec[i].tag)
+        {
+            case(Tag::LESS):
+                ret.push_back('<');
+                break;
+            case(Tag::GREATER):
+                ret.push_back('>');
+                break;
+            case(Tag::LESS_EQ):
+                ret += "<=";
+                break;
+            case(Tag::GREATER_EQ):
+                ret += ">=";
+                break;
+            
+            default:
+                Simbol::unexpectTag("RelationalExpression");
+                break;
+        }
+
+        ret += srevec[i].se->string();
     }
 
-    return retval;
+    return ret;
 }
 
 std::string ShiftExpression::string() const
 {
-    std::string retval = addvec.front()->string();
+    std::string ret = ssevec.front().ae->string();
 
-    for(std::size_t i = 1; i < addvec.size(); i++)
+    for(std::size_t i = 1; i < ssevec.size(); i++)
     {
-        retval += tagvec[i - 1]->string();
-        retval += addvec[i]->string();
+        switch(ssevec[i].tag)
+        {
+            case(Tag::L_SHIFT):
+                ret += "<<";
+                break;
+            case(Tag::R_SHIFT):
+                ret += ">>";
+                break;
+            
+            default:
+                Simbol::unexpectTag("ShiftExpression");
+                break;
+        }
+
+        ret += ssevec[i].ae->string();
     }
 
-    return retval;
+    return ret;
 }
 
 std::string AdditiveExpression::string() const
 {
-    std::string retval = mulvec.front()->string();
+    std::string ret = saevec.front().me->string();
 
-    for(std::size_t i = 1; i < mulvec.size(); i++)
+    for(std::size_t i = 1; i < saevec.size(); i++)
     {
-        retval += tagvec[i - 1]->string();
-        retval += mulvec[i]->string();
+        switch(saevec[i].tag)
+        {
+            case(Tag::ADD):
+                ret.push_back('+');
+                break;
+            case(Tag::SUB):
+                ret.push_back('-');
+                break;
+            
+            default:
+                Simbol::unexpectTag("AdditiveExpression");
+                break;
+        }
+
+        ret += saevec[i].me->string();
     }
 
-    return retval;
+    return ret;
 }
 
 std::string MultiplicativeExpression::string() const
 {
-    std::string retval = castvec.front()->string();
+    std::string ret = smevec.front().ce->string();
 
-    for(std::size_t i = 1; i < castvec.size(); i++)
+    for(std::size_t i = 1; i < smevec.size(); i++)
     {
-        retval += tagvec[i - 1]->string();
-        retval += castvec[i]->string();
+        switch(smevec[i].tag)
+        {
+            case(Tag::MUL):
+                ret.push_back('*');
+                break;
+            case(Tag::DIV):
+                ret.push_back('/');
+                break;
+            case(Tag::REM):
+                ret.push_back('%');
+                break;
+
+            default:
+                Simbol::unexpectTag("MultiplicativeExpression");
+                break;
+        }
+
+        ret += smevec[i].ce->string();
     }
 
-    return retval;
+    return ret;
 }
 
 std::string CastExpression::string() const
@@ -341,53 +415,50 @@ std::string PostfixExpression::string() const
 {
     std::string retval;
 
-    switch(tag)
+    for(auto &&spe : spevec)
     {
-        case(Tag::PRIMARY):
-            retval += uni.primary->string();
-            break;
-        case(Tag::POSTFIX_EXPRESSION):
-            retval += uni.sPostfixExpression.postfix->string();
-            retval.push_back('[');
-            retval += uni.sPostfixExpression.expression->string();
-            retval.push_back(']');
-            break;
-        case(Tag::POSTFIX_ARGUMENT):
-            retval += uni.sPostfixArgument.postfix->string();
-            retval.push_back('(');
-            if(uni.sPostfixArgument.argument != nullptr)
-                retval += uni.sPostfixArgument.argument->string();
-            retval.push_back(')');
-            break;
-        case(Tag::POSTFIX_DOT_IDENTIFIER):
-            retval += uni.sPostfixDotIdentifier.postfix->string();
-            retval.push_back('.');
-            retval += uni.sPostfixDotIdentifier.identifier->string();
-            break;
-        case(Tag::POSTFIX_ARROW_IDENTIFIER):
-            retval += uni.sPostfixArrowIdentifier.postfix->string();
-            retval += "->";
-            retval += uni.sPostfixArrowIdentifier.identifier->string();
-            break;
-        case(Tag::POSTFIX_INC):
-            retval += uni.postfixInc->string();
-            retval += "++";
-            break;
-        case(Tag::POSTFIX_DEC):
-            retval += uni.postfixDec->string();
-            retval += "--";
-            break;
-        case(Tag::TYPE_NAME):
-            retval.push_back('(');
-            retval += uni.sTypeName.typeName->string();
-            retval += "){";
-            retval += uni.sTypeName.initializer->string();
-            retval.push_back('}');
-            break;
-        
-        default:
-            Simbol::unexpectTag("PostfixExpression");
-            break;
+        switch(spe.tag)
+        {
+            case(Tag::PRIMARY):
+                retval += spe.uni.primary->string();
+                break;
+            case(Tag::EXPRESSION):
+                retval.push_back('[');
+                retval += spe.uni.expression->string();
+                retval.push_back(']');
+                break;
+            case(Tag::ARGUMENT):
+                retval.push_back('(');
+                if(spe.uni.argument != nullptr)
+                    retval += spe.uni.argument->string();
+                retval.push_back(')');
+                break;
+            case(Tag::DOT_IDENTIFIER):
+                retval.push_back('.');
+                retval += spe.uni.dotIdentifier->string();
+                break;
+            case(Tag::ARROW_IDENTIFIER):
+                retval += "->";
+                retval += spe.uni.arrowIdentifier->string();
+                break;
+            case(Tag::INC):
+                retval += "++";
+                break;
+            case(Tag::DEC):
+                retval += "--";
+                break;
+            case(Tag::TYPE_NAME):
+                retval.push_back('(');
+                retval += spe.uni.sTypeName.typeName->string();
+                retval += "){";
+                retval += spe.uni.sTypeName.initializer->string();
+                retval.push_back('}');
+                break;
+            
+            default:
+                Simbol::unexpectTag("PostfixExpression");
+                break;
+        }
     }
 
     return retval;
