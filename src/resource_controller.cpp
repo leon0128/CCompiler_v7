@@ -14,6 +14,8 @@ void ResourceController::release()
         delete b;
 }
 
+RESOURCE_CONTROLLER::Base::~Base(){}
+
 void *RESOURCE_CONTROLLER::Base::operator new(std::size_t size)
 {
     void *alloc = ::operator new(size);

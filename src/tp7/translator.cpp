@@ -3,8 +3,6 @@
 #include "static_assert_simbol.hpp"
 #include "type.hpp"
 #include "scope.hpp"
-#include "calculator.hpp"
-#include "arithmetic_type.hpp"
 #include "tokenizer.hpp"
 #include "translator.hpp"
 

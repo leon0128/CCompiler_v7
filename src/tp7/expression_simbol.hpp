@@ -510,7 +510,7 @@ public:
     union Uni
     {
         ::Identifier *identifier;
-        Constant *constant;
+        ::Constant *constant;
         StringLiteral *stringLiteral;
         Expression *expression;
         GenericSelection *genericSelection;

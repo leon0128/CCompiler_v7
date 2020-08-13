@@ -14,6 +14,7 @@ class Type;
 class BaseType;
 class StructOrUnionType;
 class EnumerationType;
+class TypedefType;
 class ArrayType;
 class PointerType;
 class FunctionType;
@@ -47,9 +48,9 @@ public:
         , FUNCTION
     };
     
-    Type(TypeTag tag)
+    Type(TypeTag inTag)
         : Base()
-        , tag(tag){}
+        , tag(inTag){}
     
     TypeTag tag;
 };
