@@ -5,8 +5,6 @@
 #include <vector>
 #include <string>
 
-#include "../resource_controller.hpp"
-
 namespace TP7
 {
 
@@ -19,7 +17,7 @@ class ArrayType;
 class PointerType;
 class FunctionType;
 
-class Type : RESOURCE_CONTROLLER::Base
+class Type
 {
 public:
     class QualifierTag
@@ -36,7 +34,7 @@ public:
             , SIZE
         };
     };
-    enum class TypeTag
+    enum class Tag
     {
         NONE
         , BASE
@@ -47,15 +45,26 @@ public:
         , POINTER
         , FUNCTION
     };
+    union Uni
+    {
+        BaseType *bt;
+        StructOrUnionType *sut;
+        EnumerationType *et;
+        TypedefType *tt;
+        ArrayType *at;
+        PointerType *pt;
+        FunctionType *ft;
+    };
     
-    Type(TypeTag inTag)
-        : Base()
-        , tag(inTag){}
+    constexpr Type() noexcept
+        : tag(Tag::NONE)
+        , uni{nullptr}{}
     
-    TypeTag tag;
+    Tag tag;
+    Uni uni;
 };
 
-class BaseType : public Type
+class BaseType
 {
 public:
     enum class Tag
@@ -83,8 +92,7 @@ public:
     };
 
     BaseType()
-        : Type(Type::TypeTag::BASE)
-        , tag(Tag::NONE)
+        : tag(Tag::NONE)
         , qualifiers()
     {
         qualifiers.fill(false);
@@ -94,7 +102,7 @@ public:
     std::array<bool, Type::QualifierTag::SIZE> qualifiers;
 };
 
-class StructOrUnionType : public Type
+class StructOrUnionType
 {
 public:
     enum class TypeTag
@@ -121,8 +129,7 @@ public:
     };
 
     StructOrUnionType()
-        : Type(Type::TypeTag::STRUCT_OR_UNION)
-        , typeTag(TypeTag::NONE)
+        : typeTag(TypeTag::NONE)
         , declarationTag(DeclarationTag::NONE)
         , qualifiers()
     {
@@ -134,26 +141,25 @@ public:
     std::array<bool, Type::QualifierTag::SIZE> qualifiers;
 };
 
-class EnumerationType : public Type
+class EnumerationType
 {
 public:
     EnumerationType()
-        : Type(Type::TypeTag::ENUMERATION)
-        , tag()
+        : tag()
         , qualifiers()
     {
         qualifiers.fill(false);
     }
+
     std::string tag;
     std::array<bool, Type::QualifierTag::SIZE> qualifiers;
 };
 
-class TypedefType : public Type
+class TypedefType
 {
 public:
     TypedefType()
-        : Type(Type::TypeTag::TYPEDEF)
-        , type(nullptr)
+        : type(nullptr)
         , qualifiers()
     {
         qualifiers.fill(false);
@@ -163,7 +169,7 @@ public:
     std::array<bool, Type::QualifierTag::SIZE> qualifiers;
 };
 
-class ArrayType : public Type
+class ArrayType
 {
 public:
     enum class Tag
@@ -173,9 +179,8 @@ public:
         , VARIABLE
     };
 
-    ArrayType()
-        : Type(Type::TypeTag::ARRAY)
-        , tag(Tag::NONE)
+    constexpr ArrayType() noexcept
+        : tag(Tag::NONE)
         , type(nullptr)
         , size(0){}
 
@@ -184,12 +189,11 @@ public:
     std::size_t size;
 };
 
-class PointerType : public Type
+class PointerType
 {
 public:
     PointerType()
-        : Type(Type::TypeTag::POINTER)
-        , type(nullptr)
+        : type(nullptr)
         , qualifiers()
     {
         qualifiers.fill(false);
@@ -199,12 +203,11 @@ public:
     std::array<bool, Type::QualifierTag::SIZE> qualifiers;
 };
 
-class FunctionType : public Type
+class FunctionType
 {
 public:
     FunctionType()
-        : Type(Type::TypeTag::FUNCTION)
-        , returnType(nullptr)
+        : returnType(nullptr)
         , argumentsType()
         , isVariable(false){}
 

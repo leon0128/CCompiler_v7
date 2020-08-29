@@ -9,6 +9,8 @@
 namespace TP7
 {
 
+class Type;
+
 class Identifier : RESOURCE_CONTROLLER::Base
 {
 public:
@@ -23,16 +25,28 @@ public:
         , TYPEDEF
         , LABEL
     };
+    enum class StorageTag
+    {
+        NONE
+        , EXTERNAL
+        , INTERNAL
+        , TH_EX
+        , TH_ST
+    };
 
     template<class String>
-    constexpr Identifier(Tag t
+    Identifier(Tag t
         , String &&ident)
         : Base()
         , tag(t)
-        , identifier(std::forward<String>(ident)){}
+        , identifier(std::forward<String>(ident))
+        , storageTag(StorageTag::NONE)
+        , type(nullptr){}
 
     const Tag tag;
     const std::string identifier;
+    StorageTag storageTag;
+    Type *type;
 };
 
 }

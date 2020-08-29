@@ -2,17 +2,20 @@
 #define TP7_CONSTANT_HPP
 
 #include <complex>
-#include "../resource_controller.hpp"
+#include "type.hpp"
 
 namespace TP7
 {
 
-class Type;
-class Constant : public ::RESOURCE_CONTROLLER::Base
+class Constant
 {
 public:
     union Uni
     {
+        constexpr Uni() noexcept
+            : c(0){}
+        ~Uni() noexcept {}
+
         char c;
         signed char sc;
         unsigned char uc;
@@ -31,16 +34,23 @@ public:
         std::complex<float> cf;
         std::complex<double> cd;
         std::complex<long double> cld;
-
+        unsigned char *p;
     };
 
     Constant()
-        : Base()
-        , type(nullptr)
-        , uni{0}{}
-    
+        : type(new Type())
+        , uni()
+        , arr()
+    {
+        type->tag = Type::Tag::NONE;
+    }
+
     Type *type;
     Uni uni;
+    std::vector<Constant*> arr; // for aggregate type
+
+    bool isZero() const;
+    friend Constant operator |(const Constant&, const Constant&);
 };
 
 }
