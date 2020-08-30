@@ -104,4 +104,13 @@ bool Constant::isZero() const
     return ret;
 }
 
+const Type *resultType(const Type *lhs, const Type *rhs)
+{
+}
+
+Constant operator |(const Constant &lhs, const Constant &rhs)
+{
+
+}
+
 }

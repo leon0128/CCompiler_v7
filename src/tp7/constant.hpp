@@ -50,6 +50,8 @@ public:
     std::vector<Constant*> arr; // for aggregate type
 
     bool isZero() const;
+
+    friend const Type *resultType(const Type*, const Type*);
     friend Constant operator |(const Constant&, const Constant&);
 };
 

@@ -56,9 +56,9 @@ public:
         FunctionType *ft;
     };
     
-    constexpr Type() noexcept
-        : tag(Tag::NONE)
-        , uni{nullptr}{}
+    Type() noexcept;
+    Type(const Type&);
+    ~Type() noexcept;
     
     Tag tag;
     Uni uni;
@@ -91,12 +91,9 @@ public:
         , LONG_DOUBLE_COMPLEX
     };
 
-    BaseType()
-        : tag(Tag::NONE)
-        , qualifiers()
-    {
-        qualifiers.fill(false);
-    }
+    BaseType();
+    BaseType(const BaseType&) = default;
+    ~BaseType() noexcept = default;
 
     Tag tag;
     std::array<bool, Type::QualifierTag::SIZE> qualifiers;
@@ -119,37 +116,25 @@ public:
         , DIRECT
     };
 
-    union Uni
-    {
-        Uni()
-            : tag(){}
 
-        std::string tag;
-        std::vector<Type*> types;
-    };
 
-    StructOrUnionType()
-        : typeTag(TypeTag::NONE)
-        , declarationTag(DeclarationTag::NONE)
-        , qualifiers()
-    {
-        qualifiers.fill(false);
-    }
+    StructOrUnionType();
+    StructOrUnionType(const StructOrUnionType&);
+    ~StructOrUnionType() noexcept;
 
     TypeTag typeTag;
     DeclarationTag declarationTag;
     std::array<bool, Type::QualifierTag::SIZE> qualifiers;
+    std::string tag;
+    std::vector<Type*> types;
 };
 
 class EnumerationType
 {
 public:
-    EnumerationType()
-        : tag()
-        , qualifiers()
-    {
-        qualifiers.fill(false);
-    }
+    EnumerationType();
+    EnumerationType(const EnumerationType&) = default;
+    ~EnumerationType() noexcept = default;
 
     std::string tag;
     std::array<bool, Type::QualifierTag::SIZE> qualifiers;
@@ -158,12 +143,9 @@ public:
 class TypedefType
 {
 public:
-    TypedefType()
-        : type(nullptr)
-        , qualifiers()
-    {
-        qualifiers.fill(false);
-    }
+    TypedefType();
+    TypedefType(const TypedefType&);
+    ~TypedefType() noexcept;
 
     Type *type;
     std::array<bool, Type::QualifierTag::SIZE> qualifiers;
@@ -179,10 +161,9 @@ public:
         , VARIABLE
     };
 
-    constexpr ArrayType() noexcept
-        : tag(Tag::NONE)
-        , type(nullptr)
-        , size(0){}
+    ArrayType() noexcept;
+    ArrayType(const ArrayType&);
+    ~ArrayType() noexcept;
 
     Tag tag;
     Type *type;
@@ -192,12 +173,9 @@ public:
 class PointerType
 {
 public:
-    PointerType()
-        : type(nullptr)
-        , qualifiers()
-    {
-        qualifiers.fill(false);
-    }
+    PointerType();
+    PointerType(const PointerType&);
+    ~PointerType() noexcept;
 
     Type *type;
     std::array<bool, Type::QualifierTag::SIZE> qualifiers;
@@ -206,10 +184,9 @@ public:
 class FunctionType
 {
 public:
-    FunctionType()
-        : returnType(nullptr)
-        , argumentsType()
-        , isVariable(false){}
+    FunctionType();
+    FunctionType(const FunctionType&);
+    ~FunctionType() noexcept;
 
     Type *returnType;
     std::vector<Type*> argumentsType;
