@@ -62,6 +62,16 @@ public:
     
     Tag tag;
     Uni uni;
+
+    bool isIntegerType() const noexcept;
+    bool isSignedIntegerType() const noexcept;
+    bool isUnsignedIntegerType() const noexcept;
+    bool isFloatingType() const noexcept;
+    bool isArithmeticType() const noexcept;
+    bool isComplexType() const noexcept;
+    int integerConversionRank() const noexcept; // if type is not integer, value is 0
+    int floatingConversionRank() const noexcept; // if typeis not floating, value is 0
+    Type *usualArithmeticConversion(const Type *lhs, const Type *rhs) const noexcept;
 };
 
 class BaseType
@@ -115,8 +125,6 @@ public:
         , TAG
         , DIRECT
     };
-
-
 
     StructOrUnionType();
     StructOrUnionType(const StructOrUnionType&);

@@ -89,11 +89,14 @@ bool Constant::isZero() const
         case(Type::Tag::TYPEDEF):
         {
             Constant temp(*this);
-            temp.type = type->uni.tt->type;
+            temp.type = new Type(*type->uni.tt->type);
             ret = temp.isZero();
             break;
         }
         case(Type::Tag::ARRAY):
+            ret = false;
+            break;
+        case(Type::Tag::POINTER):
             ret = uni.p == static_cast<unsigned char*>(0);
             break;
         case(Type::Tag::FUNCTION):
@@ -102,10 +105,6 @@ bool Constant::isZero() const
     }
 
     return ret;
-}
-
-const Type *resultType(const Type *lhs, const Type *rhs)
-{
 }
 
 Constant operator |(const Constant &lhs, const Constant &rhs)

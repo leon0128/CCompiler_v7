@@ -72,6 +72,337 @@ Type::~Type() noexcept
     }
 }
 
+bool Type::isIntegerType() const noexcept
+{
+    bool ret = false;
+    
+    switch(tag)
+    {
+        case(Tag::BASE):
+            switch(uni.bt->tag)
+            {
+                case(BaseType::Tag::CHAR):
+                case(BaseType::Tag::S_CHAR):
+                case(BaseType::Tag::U_CHAR):
+                case(BaseType::Tag::S_SHORT):
+                case(BaseType::Tag::U_SHORT):
+                case(BaseType::Tag::S_INT):
+                case(BaseType::Tag::U_INT):
+                case(BaseType::Tag::S_LONG):
+                case(BaseType::Tag::U_LONG):
+                case(BaseType::Tag::S_LONG_LONG):
+                case(BaseType::Tag::U_LONG_LONG):
+                case(BaseType::Tag::BOOL):
+                    ret = true;
+                    break;
+                
+                default:
+                    break;
+            }
+            break;
+        case(Tag::ENUMERATION):
+            ret = true;
+            break;
+        case(Tag::TYPEDEF):
+            ret = uni.tt->type->isIntegerType();
+            break;
+        
+        default:
+            break;
+    }
+
+    return ret;
+}
+
+bool Type::isSignedIntegerType() const noexcept
+{
+    bool ret = false;
+
+    switch(tag)
+    {
+        case(Tag::BASE):
+            switch(uni.bt->tag)
+            {
+                case(BaseType::Tag::CHAR):
+                case(BaseType::Tag::S_CHAR):
+                case(BaseType::Tag::S_SHORT):
+                case(BaseType::Tag::S_INT):
+                case(BaseType::Tag::S_LONG):
+                case(BaseType::Tag::S_LONG_LONG):
+                    ret = true;
+                    break;
+                
+                default:
+                    break;
+            }
+            break;
+        case(Tag::ENUMERATION):
+            ret = true;
+            break;
+        case(Tag::TYPEDEF):
+            ret = uni.tt->type->isSignedIntegerType();
+            break;
+        
+        default:
+            break;
+    }
+
+    return ret;
+}
+
+bool Type::isUnsignedIntegerType() const noexcept
+{
+    bool ret = false;
+
+    switch(tag)
+    {
+        case(Tag::BASE):
+            switch(uni.bt->tag)
+            {
+                case(BaseType::Tag::U_CHAR):
+                case(BaseType::Tag::U_SHORT):
+                case(BaseType::Tag::U_INT):
+                case(BaseType::Tag::U_LONG):
+                case(BaseType::Tag::U_LONG_LONG):
+                case(BaseType::Tag::BOOL):
+                    ret = true;
+                    break;
+
+                default:
+                    break;
+            }
+            break;
+        case(Tag::TYPEDEF):
+            ret = uni.tt->type->isUnsignedIntegerType();
+            break;
+        
+        default:
+            break;
+    }
+
+    return ret;
+}
+
+bool Type::isFloatingType() const noexcept
+{
+    bool ret = false;
+
+    switch(tag)
+    {
+        case(Tag::BASE):
+            switch(uni.bt->tag)
+            {
+                case(BaseType::Tag::FLOAT):
+                case(BaseType::Tag::DOUBLE):
+                case(BaseType::Tag::LONG_DOUBLE):
+                case(BaseType::Tag::FLOAT_COMPLEX):
+                case(BaseType::Tag::DOUBLE_COMPLEX):
+                case(BaseType::Tag::LONG_DOUBLE_COMPLEX):
+                    ret = true;
+                    break;
+                
+                default:
+                    break;
+            }
+            break;
+        case(Tag::TYPEDEF):
+            ret = uni.tt->type->isFloatingType();
+            break;
+        
+        default:
+            break;
+    }
+
+    return ret;
+}
+
+bool Type::isArithmeticType() const noexcept
+{
+    return isIntegerType() || isFloatingType();
+}
+
+bool Type::isComplexType() const noexcept
+{
+    bool ret = false;
+
+    switch(tag)
+    {
+        case(Tag::BASE):
+            switch(uni.bt->tag)
+            {
+                case(BaseType::Tag::FLOAT_COMPLEX):
+                case(BaseType::Tag::DOUBLE_COMPLEX):
+                case(BaseType::Tag::LONG_DOUBLE_COMPLEX):
+                    ret = true;
+                    break;
+                
+                default:
+                    break;
+            }
+            break;
+        case(Tag::TYPEDEF):
+            ret = uni.tt->type->isComplexType();
+            break;
+        
+        default:
+            break;
+    }
+
+    return ret;
+}
+
+int Type::integerConversionRank() const noexcept
+{
+    int ret = 0;
+
+    if(!isIntegerType())
+        return 0;
+
+    switch(tag)
+    {
+        case(Tag::BASE):
+            switch(uni.bt->tag)
+            {
+                case(BaseType::Tag::CHAR):
+                case(BaseType::Tag::S_CHAR):
+                case(BaseType::Tag::U_CHAR):
+                    ret = 2;
+                    break;
+                case(BaseType::Tag::S_SHORT):
+                case(BaseType::Tag::U_SHORT):
+                    ret = 3;
+                    break;
+                case(BaseType::Tag::S_INT):
+                case(BaseType::Tag::U_INT):
+                    ret = 4;
+                    break;
+                case(BaseType::Tag::S_LONG):
+                case(BaseType::Tag::U_LONG):
+                    ret = 5;
+                    break;
+                case(BaseType::Tag::S_LONG_LONG):
+                case(BaseType::Tag::U_LONG_LONG):
+                    ret = 6;
+                    break;
+                case(BaseType::Tag::BOOL):
+                    ret = 1;
+                    break;
+                
+                default:
+                    break;
+            }
+            break;
+        case(Tag::ENUMERATION):
+            ret = 4;
+            break;
+        case(Tag::TYPEDEF):
+            ret = uni.tt->type->integerConversionRank();
+            break;
+        
+        default:
+            break;
+    }
+
+    return ret;
+}
+
+int Type::floatingConversionRank() const noexcept
+{
+    int ret = 0;
+
+    switch(tag)
+    {
+        case(Tag::BASE):
+            switch(uni.bt->tag)
+            {
+                case(BaseType::Tag::FLOAT):
+                case(BaseType::Tag::FLOAT_COMPLEX):
+                    ret = 1;
+                    break;
+                case(BaseType::Tag::DOUBLE):
+                case(BaseType::Tag::DOUBLE_COMPLEX):
+                    ret = 2;
+                    break;
+                case(BaseType::Tag::LONG_DOUBLE):
+                case(BaseType::Tag::LONG_DOUBLE_COMPLEX):
+                    ret = 3;
+                    break;
+                
+                default:
+                    break;
+            }
+            break;
+        case(Tag::TYPEDEF):
+            ret = uni.tt->type->floatingConversionRank();
+            break;
+        
+        default:
+            break;
+    }
+
+    return ret;
+}
+
+Type *Type::usualArithmeticConversion(const Type *lhs, const Type *rhs) const noexcept
+{
+    Type *ret = nullptr;
+
+    if(!lhs->isArithmeticType()
+        || !rhs->isArithmeticType())
+        return new Type();
+    
+    // not floating
+    if(lhs->isIntegerType()
+        && rhs->isIntegerType())
+    {
+        int lrank = lhs->integerConversionRank();
+        int rrank = rhs->integerConversionRank();
+
+        if(lrank < rrank)
+            ret = new Type(*rhs);
+        else if(lrank > rrank)
+            ret = new Type(*lhs);
+        else
+        {
+            if(lhs->isSignedIntegerType())
+                ret = new Type(*rhs);
+            else
+                ret =  new Type(*lhs);
+        }
+    }
+    // floating
+    else
+    {
+        bool isComplex = lhs->isComplexType() || rhs->isComplexType();
+        int lrank = lhs->floatingConversionRank();
+        int rrank = rhs->floatingConversionRank();
+        int rank = lrank >= rrank ? lrank : rrank;
+
+        BaseType *bt = new BaseType();
+        switch(rank)
+        {
+            case(1):
+                bt->tag = isComplex ? BaseType::Tag::FLOAT_COMPLEX : BaseType::Tag::FLOAT;
+                break;
+            case(2):
+                bt->tag = isComplex ? BaseType::Tag::DOUBLE_COMPLEX : BaseType::Tag::DOUBLE;
+                break;
+            case(3):
+                bt->tag = isComplex ? BaseType::Tag::LONG_DOUBLE_COMPLEX : BaseType::Tag::LONG_DOUBLE;
+                break;
+            
+            default:
+                break;
+        }
+
+        ret = new Type();
+        ret->tag = Tag::BASE;
+        ret->uni.bt = bt;
+    }
+
+    return ret;
+}
+
 BaseType::BaseType()
     : tag(Tag::NONE)
     , qualifiers()
