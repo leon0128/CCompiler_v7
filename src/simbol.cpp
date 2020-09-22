@@ -1,4 +1,5 @@
 #include <string>
+#include <typeinfo>
 #include <iostream>
 
 #include "simbol.hpp"
@@ -95,8 +96,8 @@ const std::unordered_map<std::string, Punctuator::Tag> Punctuator::PUNCTUATOR_MA
        {"<<=", Tag::LSFT_ASS},
        {">>=", Tag::RSFT_ASS},
        {"&=", Tag::BW_AND_ASS},
-       {"^=", Tag::EX_OR},
-       {"|=", Tag::IN_OR},
+       {"^=", Tag::BW_EXOR_ASS},
+       {"|=", Tag::BW_INOR_ASS},
        {",", Tag::COMMA},
        {"#", Tag::HASH},
        {"##", Tag::HSHS},

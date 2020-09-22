@@ -1,9 +1,8 @@
 #include <iostream>
 #include <utility>
 
-#include "identifier.hpp"
+#include "generator.hpp"
 #include "scope.hpp"
-#include "type.hpp"
 #include "translator.hpp"
 
 namespace TP7
@@ -14,7 +13,19 @@ bool Translator::execute(const std::vector<Token*> &tvec
 {
     Translator translator(tvec);
 
-    translator.tokTranslationUnit();
+    TranslationUnit *tu = translator.tokTranslationUnit();
+    if(tu != nullptr)
+    {
+        Generator generator;
+        dst = generator.generate(tu);
+    }
+
+    if(translator.mIdx != tvec.size())
+    {
+        std::cerr << "TP7 Translation error:\n"
+            "    what: source code could not be evalueated to the end.\n"
+            << std::flush;
+    }
 
     return translator.mIsValid;
 }
@@ -116,7 +127,7 @@ FunctionDefinition *Translator::tokFunctionDefinition()
         && (ret.declarator = tokDeclarator()) != nullptr
         && ((ret.declarationList = tokDeclarationList()), true)
         && (ret.compoundStatement = tokCompoundStatement()) != nullptr)
-        return new FunctionDefinition();
+        return new FunctionDefinition(ret);
     else
         return mIdx = preidx, nullptr;
 }
@@ -217,7 +228,7 @@ InitDeclaratorList *Translator::tokInitDeclaratorList()
     {
         idvec.push_back(id);
 
-        while(isMatch(Punctuator::Tag::SEMI_COL))
+        while(isMatch(Punctuator::Tag::COMMA))
         {
             if((id = tokInitDeclarator()) != nullptr)
                 idvec.push_back(id);
@@ -593,8 +604,7 @@ TypedefName *Translator::tokTypedefName()
 
     // analyze
     Identifier *ident = Scope::find(Scope::NameSpaceTag::OTHER, ret.identifier->str);
-    if(ident != nullptr
-        && ident->tag == Identifier::Tag::TYPEDEF)
+    if(ident != nullptr)
         return new TypedefName(ret);
     else
         return mIdx = preidx, nullptr;
@@ -1349,7 +1359,7 @@ ExpressionStatement *Translator::tokExpressionStatement()
     ExpressionStatement ret;
     std::size_t preidx = mIdx;
 
-    if((ret.expression = tokExpression()) != nullptr
+    if((ret.expression = tokExpression(), true)
         && isMatch(Punctuator::Tag::SEMI_COL))
         return new ExpressionStatement(ret);
     else
@@ -1361,14 +1371,8 @@ SelectionStatement *Translator::tokSelectionStatement()
     SelectionStatement ret;
     std::size_t preidx = mIdx;
 
+
     if(isMatch(Keyword::Tag::IF)
-        && isMatch(Punctuator::Tag::L_PAREN)
-        && (ret.uni.sIf.expression = tokExpression()) != nullptr
-        && isMatch(Punctuator::Tag::R_PAREN)
-        && (ret.uni.sIf.statement = tokStatement()) != nullptr)
-        ret.tag = SelectionStatement::Tag::IF;
-    else if((mIdx = preidx, true)
-        && isMatch(Keyword::Tag::IF)
         && isMatch(Punctuator::Tag::L_PAREN)
         && (ret.uni.sIfElse.expression = tokExpression()) != nullptr
         && isMatch(Punctuator::Tag::R_PAREN)
@@ -1376,6 +1380,13 @@ SelectionStatement *Translator::tokSelectionStatement()
         && isMatch(Keyword::Tag::ELSE)
         && (ret.uni.sIfElse.elseStatement = tokStatement()) != nullptr)
         ret.tag = SelectionStatement::Tag::IF_ELSE;
+    else if((mIdx = preidx, true)
+        && isMatch(Keyword::Tag::IF)
+        && isMatch(Punctuator::Tag::L_PAREN)
+        && (ret.uni.sIf.expression = tokExpression()) != nullptr
+        && isMatch(Punctuator::Tag::R_PAREN)
+        && (ret.uni.sIf.statement = tokStatement()) != nullptr)
+        ret.tag = SelectionStatement::Tag::IF;        
     else if((mIdx = preidx, true)
         && isMatch(Keyword::Tag::SWITCH)
         && isMatch(Punctuator::Tag::L_PAREN)
@@ -1418,7 +1429,7 @@ IterationStatement *Translator::tokIterationStatement()
         && (ret.uni.sForExpression.expressionArr[1] = tokExpression(), true)
         && isMatch(Punctuator::Tag::SEMI_COL)
         && (ret.uni.sForExpression.expressionArr[2] = tokExpression(), true)
-        && isMatch(Punctuator::Tag::L_PAREN)
+        && isMatch(Punctuator::Tag::R_PAREN)
         && (ret.uni.sForExpression.statement = tokStatement()) != nullptr)
         ret.tag = IterationStatement::Tag::FOR_EXPRESSION;
     else if((mIdx = preidx, true)
@@ -1428,7 +1439,7 @@ IterationStatement *Translator::tokIterationStatement()
         && (ret.uni.sForDeclaration.expressionArr[0] = tokExpression(), true)
         && isMatch(Punctuator::Tag::SEMI_COL)
         && (ret.uni.sForDeclaration.expressionArr[1] = tokExpression(), true)
-        && isMatch(Punctuator::Tag::L_PAREN)
+        && isMatch(Punctuator::Tag::R_PAREN)
         && (ret.uni.sForDeclaration.statement = tokStatement()) != nullptr)
         ret.tag = IterationStatement::Tag::FOR_DECLARATION;
     

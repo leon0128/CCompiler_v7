@@ -31,7 +31,7 @@ bool Scope::insert(NameSpaceTag nsTag, Identifier *ident, ScopeTag sTag)
     }
 
     if(scope != nullptr)
-        return scope->mMap.find(nsTag)->second.insert(std::make_pair(ident->identifier, ident)).second;
+        return scope->mMap.find(nsTag)->second.insert(std::make_pair(ident->identifier(), ident)).second;
     else
         return false;
 }

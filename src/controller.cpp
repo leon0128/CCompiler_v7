@@ -55,7 +55,7 @@ bool Controller::execute(const char *filename)
         std::cout << dst << std::flush;
     }
 
-    Simbol::destroy();
+    // Simbol::destroy();
     ResourceController::release();
     return true;
 }
