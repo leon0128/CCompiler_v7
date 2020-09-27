@@ -4,6 +4,7 @@
 #include "declaration_simbol.hpp"
 #include "expression_simbol.hpp"
 #include "function_definition_simbol.hpp"
+#include "type.hpp"
 #include "generator.hpp"
 
 namespace TP7

@@ -3,6 +3,10 @@
 
 #include <vector>
 #include <string>
+#include <unordered_map>
+#include <set>
+
+#include "declaration_simbol.hpp"
 
 namespace TP7
 {
@@ -16,6 +20,8 @@ class StructType;
 class UnionType;
 class ArrayType;
 class EnumerationType;
+
+class Declaration;
 
 class Type
 {
@@ -47,6 +53,22 @@ public:
     constexpr Type() noexcept
         : tag(Tag::NONE)
         , uni{nullptr}{}
+    constexpr BaseType *set(BaseType *t) noexcept
+        {tag = Tag::BASE; return uni.baseT = t;}
+    constexpr FunctionType *set(FunctionType *t) noexcept
+        {tag = Tag::FUNCTION; return uni.functionT = t;}
+    constexpr PointerType *set(PointerType *t) noexcept
+        {tag = Tag::POINTER; return uni.pointerT = t;}
+    constexpr BitfieldType *set(BitfieldType *t) noexcept
+        {tag = Tag::BITFIELD; return uni.bitfieldT = t;}
+    constexpr StructType *set(StructType *t) noexcept
+        {tag = Tag::STRUCT; return uni.structT = t;}
+    constexpr UnionType *set(UnionType *t) noexcept
+        {tag = Tag::UNION; return uni.unionT = t;}
+    constexpr ArrayType *set(ArrayType *t) noexcept
+        {tag = Tag::ARRAY; return uni.arrayT = t;}
+    constexpr EnumerationType *set(EnumerationType *t) noexcept
+        {tag = Tag::ENUMERATION; return uni.enumerationT = t;}
 
     Tag tag;
     Uni uni;
@@ -55,7 +77,7 @@ public:
 class BaseType
 {
 public:
-    enum Tag
+    enum class Tag
     {
         NONE
         , VOID
@@ -158,6 +180,18 @@ public:
 
     std::string tag;
 };
+
+namespace TYPE
+{
+    extern const std::unordered_map<BaseType::Tag, std::vector<std::multiset<::TP7::TypeSpecifier::Tag>>> SPECIFIER_MAP;
+
+    extern Type *deduce(const DeclarationSpecifiers*);
+    extern Type *deduce(const Declarator*, Type*);
+    extern Type *deduce(const ParameterDeclaration*);
+    extern Type *deduce(const AbstractDeclarator*, Type*);
+    extern Type *deduce(const std::vector<const TypeSpecifier*>&);
+}
+
 
 }
 
