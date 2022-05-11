@@ -5,6 +5,8 @@
 #include "expression_simbol.hpp"
 #include "function_definition_simbol.hpp"
 #include "type.hpp"
+#include "identifier.hpp"
+#include "scope.hpp"
 #include "generator.hpp"
 
 namespace TP7
@@ -32,11 +34,15 @@ std::string Generator::generate(const TranslationUnit *tu)
     std::string ret;
     ret += "    .intel_syntax noprefix\n\n";
 
+    Scope::create(Scope::ScopeTag::FILE);
+
     for(auto &&ed : tu->edvec)
     {
         ret += generate(ed);
         ret.push_back('\n');
     }
+
+    Scope::destroy();
 
     return ret;
 }
@@ -109,7 +115,53 @@ std::string Generator::generate(const Declaration *d)
 {
     std::string ret;
 
-    ret += "=== not implements (Declaration) ===\n";
+    switch(d->tag)
+    {
+        case(Declaration::Tag::DECLARATION):
+        {
+            Type *t = TYPE::deduce(d->uni.sDeclaration.declarationSpecifiers);
+            if(d->uni.sDeclaration.initDeclaratorList != nullptr)
+                ret += generate(d->uni.sDeclaration.initDeclaratorList, t);
+            break;
+        }
+
+        default:
+            Simbol::unexpectTag("Declaration");
+    }
+
+    return ret;
+}
+
+std::string Generator::generate(const InitDeclaratorList *idl, Type *type)
+{
+    std::string ret;
+
+    for(auto &&id : idl->idvec)
+        ret += generate(id, type);
+
+    return ret;
+}
+
+std::string Generator::generate(const InitDeclarator *id, Type *type)
+{
+    std::string ret;
+
+    type = TYPE::deduce(id->declarator, type);
+    
+    IDENTIFIER::Identifier *ident = new IDENTIFIER::Identifier();
+    ident->ident = getIdentifier(id->declarator);
+    ident->set(new IDENTIFIER::Object())->type = type;
+
+    if(type->tag != Type::Tag::FUNCTION)
+    {
+        ret += "    .comm ";
+        ret += ident->ident;
+        ret += ", ";
+        ret += std::to_string(type->size());
+        ret += ", ";
+        ret += std::to_string(type->alignment());
+        ret.push_back('\n');
+    }
 
     return ret;
 }

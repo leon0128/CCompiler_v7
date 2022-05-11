@@ -8,7 +8,10 @@
 namespace TP7
 {
 
-class Identifier;
+namespace IDENTIFIER
+{
+    class Identifier;
+}
 
 class Scope
 {
@@ -34,8 +37,8 @@ public:
     static void destroy();
     
     template<class String>
-    static Identifier *find(NameSpaceTag, String&&);
-    static bool insert(NameSpaceTag, Identifier*, ScopeTag = ScopeTag::NONE);
+    static IDENTIFIER::Identifier *find(NameSpaceTag, String&&);
+    static bool insert(NameSpaceTag, IDENTIFIER::Identifier*, ScopeTag = ScopeTag::NONE);
 
 private:
     static Scope *CHILD;
@@ -46,21 +49,21 @@ private:
         , mTag(tag)
         , mMap()
     {
-        mMap.emplace(NameSpaceTag::LABEL, std::unordered_map<std::string, Identifier*>());
-        mMap.emplace(NameSpaceTag::MEMBER, std::unordered_map<std::string, Identifier*>());
-        mMap.emplace(NameSpaceTag::TAG, std::unordered_map<std::string, Identifier*>());
-        mMap.emplace(NameSpaceTag::OTHER, std::unordered_map<std::string, Identifier*>());
+        mMap.emplace(NameSpaceTag::LABEL, std::unordered_map<std::string, IDENTIFIER::Identifier*>());
+        mMap.emplace(NameSpaceTag::MEMBER, std::unordered_map<std::string, IDENTIFIER::Identifier*>());
+        mMap.emplace(NameSpaceTag::TAG, std::unordered_map<std::string, IDENTIFIER::Identifier*>());
+        mMap.emplace(NameSpaceTag::OTHER, std::unordered_map<std::string, IDENTIFIER::Identifier*>());
     }
 
     Scope *mParent;
     ScopeTag mTag;
-    std::unordered_map<NameSpaceTag, std::unordered_map<std::string, Identifier*>> mMap;
+    std::unordered_map<NameSpaceTag, std::unordered_map<std::string, IDENTIFIER::Identifier*>> mMap;
 };
 
 template<class String>
-Identifier *Scope::find(NameSpaceTag tag, String &&ident)
+IDENTIFIER::Identifier *Scope::find(NameSpaceTag tag, String &&ident)
 {
-    Identifier *res = nullptr;
+    IDENTIFIER::Identifier *res = nullptr;
 
     for(Scope *scope = CHILD; scope != nullptr; scope = scope->mParent)
     {

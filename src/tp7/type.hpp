@@ -69,6 +69,16 @@ public:
         {tag = Tag::ARRAY; return uni.arrayT = t;}
     constexpr EnumerationType *set(EnumerationType *t) noexcept
         {tag = Tag::ENUMERATION; return uni.enumerationT = t;}
+    
+    Type(const Type&);
+
+    std::size_t size() const;
+    std::size_t alignment() const;
+
+    bool isSigned() const;
+    bool isUnsigned() const;
+    bool isInteger() const;
+    bool isFloating() const;
 
     Tag tag;
     Uni uni;
@@ -101,6 +111,11 @@ public:
     constexpr BaseType() noexcept
         : tag(Tag::NONE){}
 
+    BaseType(const BaseType&);
+
+    std::size_t size() const;
+    std::size_t alignment() const;
+
     Tag tag;
 };
 
@@ -111,6 +126,11 @@ public:
         : returnT(nullptr)
         , argTypes()
         , isVariable(false){}
+
+    FunctionType(const FunctionType&);
+
+    std::size_t size() const;
+    std::size_t alignment() const;
 
     Type *returnT;
     std::vector<Type*> argTypes;
@@ -123,6 +143,11 @@ public:
     constexpr PointerType() noexcept
         : referencedT(nullptr){}
 
+    PointerType(const PointerType&);
+
+    std::size_t size() const;
+    std::size_t alignment() const;
+
     Type *referencedT;
 };
 
@@ -131,10 +156,15 @@ class BitfieldType
 public:
     constexpr BitfieldType() noexcept
         : referencedT(nullptr)
-        , size(0){}
+        , fieldSize(0){}
+
+    BitfieldType(const BitfieldType&);
+
+    std::size_t size() const;
+    std::size_t alignment() const;
 
     Type *referencedT;
-    std::size_t size;
+    std::size_t fieldSize;
 };
 
 class StructType
@@ -144,6 +174,11 @@ public:
         && noexcept(std::string()))
         : tag()
         , types(){}
+
+    StructType(const StructType&);
+
+    std::size_t size() const;
+    std::size_t alignment() const;
 
     std::string tag;
     std::vector<Type*> types;
@@ -157,6 +192,11 @@ public:
         : tag()
         , types(){}
 
+    UnionType(const UnionType&);
+
+    std::size_t size() const;
+    std::size_t alignment() const;
+
     std::string tag;
     std::vector<Type*> types;
 };
@@ -166,10 +206,13 @@ class ArrayType
 public:
     constexpr ArrayType() noexcept
         : elementT(nullptr)
-        , size(0){}
+        , arraySize(0){}
+
+    std::size_t size() const;
+    std::size_t alignment() const;
 
     Type *elementT;
-    std::size_t size;
+    std::size_t arraySize;
 };
 
 class EnumerationType
@@ -178,18 +221,29 @@ public:
     EnumerationType() noexcept(noexcept(std::string()))
         : tag(){}
 
+    std::size_t size() const;
+    std::size_t alignment() const;
+
+    EnumerationType(const EnumerationType&);
+
     std::string tag;
 };
 
 namespace TYPE
 {
     extern const std::unordered_map<BaseType::Tag, std::vector<std::multiset<::TP7::TypeSpecifier::Tag>>> SPECIFIER_MAP;
+    extern const std::unordered_map<BaseType::Tag, std::ptrdiff_t> CONVERSION_RANK;
 
     extern Type *deduce(const DeclarationSpecifiers*);
+    extern Type *deduce(const TypeName*);
+    extern Type *deduce(const SpecifierQualifierList*);
     extern Type *deduce(const Declarator*, Type*);
     extern Type *deduce(const ParameterDeclaration*);
     extern Type *deduce(const AbstractDeclarator*, Type*);
     extern Type *deduce(const std::vector<const TypeSpecifier*>&);
+
+    extern Type *promote(const Type*, const Type*);
+    extern std::ptrdiff_t getConversionRank(const Type*);
 }
 
 

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <utility>
 
+#include "identifier.hpp"
 #include "generator.hpp"
 #include "scope.hpp"
 #include "translator.hpp"
@@ -603,7 +604,7 @@ TypedefName *Translator::tokTypedefName()
         return nullptr;
 
     // analyze
-    Identifier *ident = Scope::find(Scope::NameSpaceTag::OTHER, ret.identifier->str);
+    IDENTIFIER::Identifier *ident = Scope::find(Scope::NameSpaceTag::OTHER, ret.identifier->str);
     if(ident != nullptr)
         return new TypedefName(ret);
     else

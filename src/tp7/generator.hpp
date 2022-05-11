@@ -17,6 +17,8 @@ class CharacterConstant;
 namespace TP7
 {
 
+class Type;
+
 class TranslationUnit;
 class FunctionDefinition;
 class ExternalDeclaration;
@@ -71,6 +73,8 @@ public:
     std::string generate(const FunctionDefinition*);
     std::string generate(const ExternalDeclaration*);
     std::string generate(const Declaration*); // for external-declaration
+    std::string generate(const InitDeclaratorList*, Type*); // for external-declaration
+    std::string generate(const InitDeclarator*, Type*); // for external-declaration
     std::string generate(const CompoundStatement*);
     std::string generate(const BlockItemList*);
     std::string generate(const BlockItem*);

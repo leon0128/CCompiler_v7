@@ -2,24 +2,53 @@
 #define TP7_IDENTIFIER_HPP
 
 #include <string>
-#include <utility>
 
 namespace TP7
 {
 
+class Type;
+
+namespace IDENTIFIER
+{
+
+class Object;
+
 class Identifier
 {
 public:
-    template<typename String>
-    explicit Identifier(String &&i)
-        : mIdent(std::forward(i)){}
+    enum class Tag
+    {
+        NONE
+        , OBJECT
+    };
+    union Uni
+    {
+        Object *object;
+    };
 
-    const std::string &identifier() const noexcept
-        {return mIdent;}
+    Identifier()
+        : tag(Tag::NONE)
+        , uni{nullptr}
+        , ident(){}
 
-private:
-    std::string mIdent;
+    constexpr Object *set(Object *o) noexcept
+        {tag = Tag::OBJECT; return uni.object = o;}
+
+    Tag tag;
+    Uni uni;
+    std::string ident;
 };
+
+class Object
+{
+public:
+    constexpr Object() noexcept
+        : type(nullptr){}
+
+    Type *type;
+};
+
+}
 
 }
 

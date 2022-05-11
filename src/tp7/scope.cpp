@@ -18,7 +18,7 @@ void Scope::destroy()
     CHILD = parent;   
 }
 
-bool Scope::insert(NameSpaceTag nsTag, Identifier *ident, ScopeTag sTag)
+bool Scope::insert(NameSpaceTag nsTag, IDENTIFIER::Identifier *ident, ScopeTag sTag)
 {
     Scope *scope = CHILD;
     if(sTag != ScopeTag::NONE)
@@ -31,7 +31,7 @@ bool Scope::insert(NameSpaceTag nsTag, Identifier *ident, ScopeTag sTag)
     }
 
     if(scope != nullptr)
-        return scope->mMap.find(nsTag)->second.insert(std::make_pair(ident->identifier(), ident)).second;
+        return scope->mMap.find(nsTag)->second.insert(std::make_pair(ident->ident, ident)).second;
     else
         return false;
 }
